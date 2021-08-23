@@ -61,7 +61,7 @@ contract Dao is ReentrancyGuard, ERC20 {
         bytes[] sigs;
     }
 
-    ExecutedVoting[] executedVoting;
+    ExecutedVoting[] internal executedVoting;
 
     mapping(bytes32 => bool) public executedTx;
 
@@ -150,16 +150,6 @@ contract Dao is ReentrancyGuard, ERC20 {
 
         require(permitted.contains(msg.sender), "DAO: only for permitted");
 
-        if (_data.length == 0) {
-            payable(_target).sendValue(_value);
-        } else {
-            if (_value == 0) {
-                _target.functionCall(_data);
-            } else {
-                _target.functionCallWithValue(_data, _value);
-            }
-        }
-
         executedPermitted.push(
             ExecutedPermitted({
                 target: _target,
@@ -171,6 +161,16 @@ contract Dao is ReentrancyGuard, ERC20 {
         );
 
         emit ExecutedP(_target, _data, _value, msg.sender);
+
+        if (_data.length == 0) {
+            payable(_target).sendValue(_value);
+        } else {
+            if (_value == 0) {
+                _target.functionCall(_data);
+            } else {
+                _target.functionCallWithValue(_data, _value);
+            }
+        }
 
         return true;
     }
@@ -213,16 +213,6 @@ contract Dao is ReentrancyGuard, ERC20 {
             })
         );
 
-        if (_data.length == 0) {
-            payable(_target).sendValue(_value);
-        } else {
-            if (_value == 0) {
-                _target.functionCall(_data);
-            } else {
-                _target.functionCallWithValue(_data, _value);
-            }
-        }
-
         emit Executed(
             _target,
             _data,
@@ -233,6 +223,16 @@ contract Dao is ReentrancyGuard, ERC20 {
             txHash,
             _sigs
         );
+
+        if (_data.length == 0) {
+            payable(_target).sendValue(_value);
+        } else {
+            if (_value == 0) {
+                _target.functionCall(_data);
+            } else {
+                _target.functionCallWithValue(_data, _value);
+            }
+        }
 
         return true;
     }
@@ -252,7 +252,8 @@ contract Dao is ReentrancyGuard, ERC20 {
                     _data,
                     _value,
                     _nonce,
-                    _timestamp
+                    _timestamp,
+                    block.chainid
                 )
             );
     }
@@ -290,9 +291,7 @@ contract Dao is ReentrancyGuard, ERC20 {
     function checkSubscription() public view returns (bool) {
         if (
             IFactory(factory).monthlyCost() > 0 &&
-            (IFactory(factory).subscriptions(address(this)) == 0 ||
-                IFactory(factory).subscriptions(address(this)) <
-                block.timestamp)
+            IFactory(factory).subscriptions(address(this)) < block.timestamp
         ) {
             return false;
         }
@@ -436,19 +435,15 @@ contract Dao is ReentrancyGuard, ERC20 {
     /*----ADAPTERS & PERMITTED---------------------------*/
 
     function addAdapter(address a) external onlyDao returns (bool) {
-        require(!adapters.contains(a), "DAO: already an adapter");
+        require(adapters.add(a), "DAO: already an adapter");
 
-        require(adapters.add(a));
-
-        require(permitted.add(a));
+        permitted.add(a);
 
         return true;
     }
 
     function removeAdapter(address a) external onlyDao returns (bool) {
-        require(adapters.contains(a), "DAO: not an adapter");
-
-        adapters.remove(a);
+        require(adapters.remove(a), "DAO: not an adapter");
 
         permitted.remove(a);
 
@@ -456,17 +451,13 @@ contract Dao is ReentrancyGuard, ERC20 {
     }
 
     function addPermitted(address p) external onlyDao returns (bool) {
-        require(!permitted.contains(p), "DAO: already permitted");
-
-        permitted.add(p);
+        require(permitted.add(p), "DAO: already permitted");
 
         return true;
     }
 
     function removePermitted(address p) external onlyDao returns (bool) {
-        require(permitted.contains(p), "DAO: not a permitted");
-
-        permitted.remove(p);
+        require(permitted.remove(p), "DAO: not a permitted");
 
         return true;
     }
@@ -600,7 +591,7 @@ contract Dao is ReentrancyGuard, ERC20 {
 
     /*----RECEIVE ETH------------------------------------*/
 
-    event Received(address, uint256);
+    event Received(address indexed, uint256);
 
     receive() external payable {
         emit Received(msg.sender, msg.value);

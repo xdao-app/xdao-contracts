@@ -90,7 +90,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     const sig = await signers[0].signMessage(txHash)
@@ -160,7 +161,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     const sig = await signers[0].signMessage(txHash)
@@ -192,7 +194,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     const sigOwner = await signers[0].signMessage(txHash)
@@ -250,7 +253,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     const sigOwnerDisableBurning = await signers[0].signMessage(txHash)
@@ -316,7 +320,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     const sig = await signers[0].signMessage(txHash)
@@ -359,7 +364,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     const sigNew = await signers[0].signMessage(txHash)
@@ -418,7 +424,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)
@@ -455,7 +462,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     sig = await signers[0].signMessage(txHash)
@@ -497,7 +505,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     sig = await signers[0].signMessage(txHash)
@@ -531,7 +540,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     sig = await signers[0].signMessage(txHash)
@@ -593,7 +603,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)
@@ -752,7 +763,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)
@@ -793,7 +805,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)
@@ -831,7 +844,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)
@@ -861,7 +875,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     sig = await signers[0].signMessage(txHash)
@@ -903,7 +918,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     sig = await signers[0].signMessage(txHash)
@@ -967,7 +983,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)
@@ -1001,7 +1018,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     sig = await signers[1].signMessage(txHash)
@@ -1048,7 +1066,8 @@ describe("Dao", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     const sig = await signers[0].signMessage(txHash)

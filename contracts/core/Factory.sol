@@ -32,13 +32,13 @@ contract Factory is Ownable {
     function subscribe(address _dao) external returns (bool) {
         require(daos.contains(_dao));
 
-        IERC20(xdao).safeTransferFrom(msg.sender, owner(), monthlyCost);
-
-        if (subscriptions[_dao] == 0 || subscriptions[_dao] < block.timestamp) {
+        if (subscriptions[_dao] < block.timestamp) {
             subscriptions[_dao] = block.timestamp + 30 days;
         } else {
             subscriptions[_dao] += 30 days;
         }
+
+        IERC20(xdao).safeTransferFrom(msg.sender, owner(), monthlyCost);
 
         return true;
     }

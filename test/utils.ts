@@ -21,13 +21,22 @@ export const createTxHash = (
   data: string,
   value: BigNumberish,
   nonce: BigNumberish,
-  timestamp: BigNumberish
+  timestamp: BigNumberish,
+  chainId: BigNumberish
 ): Uint8Array =>
   arrayify(
     keccak256(
       new AbiCoder().encode(
-        ["address", "address", "bytes", "uint256", "uint256", "uint256"],
-        [daoAddress, target, data, value, nonce, timestamp]
+        [
+          "address",
+          "address",
+          "bytes",
+          "uint256",
+          "uint256",
+          "uint256",
+          "uint256",
+        ],
+        [daoAddress, target, data, value, nonce, timestamp, chainId]
       )
     )
   )

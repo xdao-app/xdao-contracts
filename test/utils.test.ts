@@ -46,7 +46,8 @@ describe("Utils", () => {
       createData("toggle"),
       12,
       27,
-      dayjs().unix()
+      dayjs().unix(),
+      1337
     )
 
     const sig = await signer.signMessage(txHash)
@@ -71,7 +72,8 @@ describe("Utils", () => {
       ),
       12,
       27,
-      dayjs().unix()
+      dayjs().unix(),
+      1337
     )
 
     const sig = await signer.signMessage(txHash)

@@ -151,7 +151,8 @@ describe("DaoViewer", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)

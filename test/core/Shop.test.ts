@@ -85,7 +85,8 @@ describe("Shop", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)
@@ -144,7 +145,8 @@ describe("Shop", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)
@@ -211,7 +213,8 @@ describe("Shop", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     let sig = await signers[0].signMessage(txHash)
@@ -243,7 +246,8 @@ describe("Shop", () => {
       VOTING.data,
       VOTING.value,
       VOTING.nonce,
-      VOTING.timestamp
+      VOTING.timestamp,
+      1337
     )
 
     sig = await signers[0].signMessage(txHash)

@@ -78,13 +78,13 @@ contract Shop is ReentrancyGuard {
 
         LP lp = new LP(_lpName, _lpSymbol, msg.sender);
 
-        bool b = IDao(msg.sender).setLp(address(lp));
-
-        require(b, "Shop: LP setting error");
-
         lps[address(lp)] = true;
 
         emit LpCreated(address(lp));
+
+        bool b = IDao(msg.sender).setLp(address(lp));
+
+        require(b, "Shop: LP setting error");
 
         return true;
     }
@@ -145,12 +145,14 @@ contract Shop is ReentrancyGuard {
             "Shop: only DAO can sell LPs"
         );
 
-        require(publicOffers[_dao].isActive, "Shop: this offer is disabled");
+        PublicOffer memory publicOffer = publicOffers[_dao];
 
-        IERC20(publicOffers[_dao].currency).safeTransferFrom(
+        require(publicOffer.isActive, "Shop: this offer is disabled");
+
+        IERC20(publicOffer.currency).safeTransferFrom(
             msg.sender,
             _dao,
-            _lpAmount * publicOffers[_dao].rate
+            _lpAmount * publicOffer.rate
         );
 
         address lp = IDao(_dao).lp();
