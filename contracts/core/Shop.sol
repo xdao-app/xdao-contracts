@@ -152,7 +152,7 @@ contract Shop is ReentrancyGuard {
         IERC20(publicOffer.currency).safeTransferFrom(
             msg.sender,
             _dao,
-            _lpAmount * publicOffer.rate
+            (_lpAmount * publicOffer.rate) / 1e18
         );
 
         address lp = IDao(_dao).lp();

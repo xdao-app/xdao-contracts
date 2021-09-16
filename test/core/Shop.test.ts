@@ -132,7 +132,7 @@ describe("Shop", () => {
       data: createData(
         "initPublicOffer",
         ["bool", "address", "uint256"],
-        [true, goldToken.address, 5]
+        [true, goldToken.address, parseEther("5")]
       ),
       value: 0,
       nonce: 0,
@@ -171,7 +171,7 @@ describe("Shop", () => {
       goldToken.address
     )
 
-    expect(+(await shop.publicOffers(dao.address)).rate).to.eq(5)
+    expect((await shop.publicOffers(dao.address)).rate).to.eql(parseEther("5"))
 
     await goldToken.transfer(await signers[1].getAddress(), parseEther("10"))
 
