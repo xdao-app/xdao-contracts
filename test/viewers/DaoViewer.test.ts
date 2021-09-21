@@ -254,4 +254,95 @@ describe("DaoViewer", () => {
       )
     ).to.eql([parseEther("123.45"), parseEther("0.777"), parseEther("1.23")])
   })
+
+  it("Get Hash Statuses", async () => {
+    signers = await ethers.getSigners()
+
+    ownerAddress = await signers[0].getAddress()
+
+    token = await new Token__factory(signers[0]).deploy()
+
+    shop = await new Shop__factory(signers[0]).deploy()
+
+    factory = await new Factory__factory(signers[0]).deploy(
+      shop.address,
+      token.address
+    )
+
+    await shop.setFactory(factory.address)
+
+    daoViewer = await new DaoViewer__factory(signers[0]).deploy()
+
+    await factory.create("FIRST", "FIRST", 51, [ownerAddress], [10])
+
+    const dao = Dao__factory.connect(await factory.daoAt(0), signers[0])
+
+    const timestamp1 = dayjs().unix()
+
+    const VOTING_1 = {
+      target: dao.address,
+      data: createData("changeQuorum", ["uint8"], [60]),
+      value: 0,
+      nonce: 0,
+      timestamp: timestamp1,
+    }
+
+    const txHash1 = createTxHash(
+      dao.address,
+      VOTING_1.target,
+      VOTING_1.data,
+      VOTING_1.value,
+      VOTING_1.nonce,
+      VOTING_1.timestamp,
+      1337
+    )
+
+    expect(await daoViewer.getHashStatuses(dao.address, [txHash1])).to.eql([
+      false,
+    ])
+
+    await dao.execute(
+      VOTING_1.target,
+      VOTING_1.data,
+      VOTING_1.value,
+      VOTING_1.nonce,
+      VOTING_1.timestamp,
+      [await signers[0].signMessage(txHash1)]
+    )
+
+    expect(await daoViewer.getHashStatuses(dao.address, [txHash1])).to.eql([
+      true,
+    ])
+
+    const txHash2 = createTxHash(
+      dao.address,
+      VOTING_1.target,
+      VOTING_1.data,
+      VOTING_1.value,
+      VOTING_1.nonce,
+      VOTING_1.timestamp + 20,
+      1337
+    )
+
+    expect(
+      await daoViewer.getHashStatuses(dao.address, [txHash1, txHash2])
+    ).to.eql([true, false])
+
+    expect(
+      await daoViewer.getHashStatuses(dao.address, [txHash2, txHash1])
+    ).to.eql([false, true])
+
+    await dao.execute(
+      VOTING_1.target,
+      VOTING_1.data,
+      VOTING_1.value,
+      VOTING_1.nonce,
+      VOTING_1.timestamp + 20,
+      [await signers[0].signMessage(txHash2)]
+    )
+
+    expect(
+      await daoViewer.getHashStatuses(dao.address, [txHash1, txHash2])
+    ).to.eql([true, true])
+  })
 })

@@ -19,4 +19,6 @@ interface IDao {
     function setLp(address _lp) external returns (bool);
 
     function quorum() external view returns (uint8);
+
+    function executedTx(bytes32 _txHash) external view returns (bool);
 }

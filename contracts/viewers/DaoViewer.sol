@@ -131,4 +131,18 @@ contract DaoViewer {
 
         return addrBalances;
     }
+
+    function getHashStatuses(address _dao, bytes32[] memory _txHashes)
+        external
+        view
+        returns (bool[] memory)
+    {
+        bool[] memory hashStatuses = new bool[](_txHashes.length);
+
+        for (uint256 i = 0; i < _txHashes.length; i++) {
+            hashStatuses[i] = IDao(_dao).executedTx(_txHashes[i]);
+        }
+
+        return hashStatuses;
+    }
 }
