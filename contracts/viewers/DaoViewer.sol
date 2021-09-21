@@ -106,6 +106,37 @@ contract DaoViewer {
         return (share, totalSupply, quorum);
     }
 
+    function getShares(address _dao, address[][] memory _users)
+        external
+        view
+        returns (
+            uint256[] memory shares,
+            uint256 totalSupply,
+            uint8 quorum
+        )
+    {
+        quorum = IDao(_dao).quorum();
+        totalSupply = IERC20(_dao).totalSupply();
+
+        shares = new uint256[](_users.length);
+
+        for (uint256 i = 0; i < _users.length; i++) {
+            if (_users[i].length == 0) {
+                shares[i] = 0;
+            } else {
+                uint256 share = 0;
+
+                for (uint256 j = 0; j < _users[i].length; j++) {
+                    share += IERC20(_dao).balanceOf(_users[i][j]);
+                }
+
+                shares[i] = share;
+            }
+        }
+
+        return (shares, totalSupply, quorum);
+    }
+
     function balances(address[] memory users, address[] memory tokens)
         external
         view

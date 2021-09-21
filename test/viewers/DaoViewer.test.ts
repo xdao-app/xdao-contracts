@@ -1,3 +1,4 @@
+import { BigNumber } from "@ethersproject/bignumber"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { expect } from "chai"
 import dayjs from "dayjs"
@@ -68,12 +69,34 @@ describe("DaoViewer", () => {
 
     expect([+share0, +totalSupply0, quorum0]).to.eql([0, 10, 51])
 
+    const [shares00, totalSupply00, quorum00] = await daoViewer.getShares(
+      await factory.daoAt(0),
+      [[]]
+    )
+
+    expect([shares00, +totalSupply00, quorum00]).to.eql([
+      [constants.Zero],
+      10,
+      51,
+    ])
+
     const [share1, totalSupply1, quorum1] = await daoViewer.getShare(
       await factory.daoAt(0),
       [ownerAddress]
     )
 
     expect([+share1, +totalSupply1, quorum1]).to.eql([10, 10, 51])
+
+    const [shares11, totalSupply11, quorum11] = await daoViewer.getShares(
+      await factory.daoAt(0),
+      [[ownerAddress], [], [], [ownerAddress, await signers[1].getAddress()]]
+    )
+
+    expect([shares11, +totalSupply11, quorum11]).to.eql([
+      [BigNumber.from(10), constants.Zero, constants.Zero, BigNumber.from(10)],
+      10,
+      51,
+    ])
 
     expect(await daoViewer.getDaos(factory.address)).to.have.lengthOf(1)
 
