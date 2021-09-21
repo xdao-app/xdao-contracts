@@ -105,4 +105,30 @@ contract DaoViewer {
 
         return (share, totalSupply, quorum);
     }
+
+    function balances(address[] memory users, address[] memory tokens)
+        external
+        view
+        returns (uint256[] memory)
+    {
+        uint256[] memory addrBalances = new uint256[](
+            tokens.length * users.length
+        );
+
+        for (uint256 i = 0; i < users.length; i++) {
+            for (uint256 j = 0; j < tokens.length; j++) {
+                uint256 addrIdx = j + tokens.length * i;
+
+                if (tokens[j] != address(0x0)) {
+                    addrBalances[addrIdx] = IERC20(tokens[j]).balanceOf(
+                        users[i]
+                    );
+                } else {
+                    addrBalances[addrIdx] = users[i].balance;
+                }
+            }
+        }
+
+        return addrBalances;
+    }
 }

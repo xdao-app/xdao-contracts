@@ -2,7 +2,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { expect } from "chai"
 import dayjs from "dayjs"
 import { constants } from "ethers"
-import { verifyMessage } from "ethers/lib/utils"
+import { parseEther, verifyMessage } from "ethers/lib/utils"
 import { ethers } from "hardhat"
 import {
   DaoViewer,
@@ -187,5 +187,71 @@ describe("DaoViewer", () => {
     expect(
       await daoViewer.userDaos(ownerAddress, factory.address)
     ).to.have.lengthOf(3)
+  })
+
+  it("Balance Checker", async () => {
+    const signers = await ethers.getSigners()
+    const gold = await new Token__factory(signers[0]).deploy()
+    const silver = await new Token__factory(signers[0]).deploy()
+    const bronze = await new Token__factory(signers[0]).deploy()
+
+    const owner = await signers[0].getAddress()
+    const friend = await signers[1].getAddress()
+
+    await gold.transfer(friend, parseEther("1"))
+    await silver.transfer(friend, parseEther("2"))
+    await bronze.transfer(friend, parseEther("3"))
+
+    expect(await gold.balanceOf(owner)).to.eql(parseEther("99"))
+    expect(await silver.balanceOf(owner)).to.eql(parseEther("98"))
+    expect(await bronze.balanceOf(owner)).to.eql(parseEther("97"))
+
+    expect(await gold.balanceOf(friend)).to.eql(parseEther("1"))
+    expect(await silver.balanceOf(friend)).to.eql(parseEther("2"))
+    expect(await bronze.balanceOf(friend)).to.eql(parseEther("3"))
+
+    const daoViewer = await new DaoViewer__factory(signers[0]).deploy()
+
+    expect(
+      await daoViewer.balances(
+        [owner, friend],
+        [gold.address, silver.address, bronze.address]
+      )
+    ).to.eql([
+      parseEther("99"),
+      parseEther("98"),
+      parseEther("97"),
+      parseEther("1"),
+      parseEther("2"),
+      parseEther("3"),
+    ])
+
+    const [firstReceiver, secondReceiver, thirdReceiver] = [
+      ethers.Wallet.createRandom().address,
+      ethers.Wallet.createRandom().address,
+      ethers.Wallet.createRandom().address,
+    ]
+
+    await signers[0].sendTransaction({
+      to: firstReceiver,
+      value: parseEther("123.45"),
+    })
+
+    await signers[0].sendTransaction({
+      to: secondReceiver,
+      value: parseEther("0.777"),
+    })
+
+    await signers[0].sendTransaction({
+      to: thirdReceiver,
+      value: parseEther("1.23"),
+    })
+
+    expect(
+      await daoViewer.balances(
+        [firstReceiver, secondReceiver, thirdReceiver],
+        [constants.AddressZero]
+      )
+    ).to.eql([parseEther("123.45"), parseEther("0.777"), parseEther("1.23")])
   })
 })
