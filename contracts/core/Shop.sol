@@ -159,7 +159,7 @@ contract Shop is ReentrancyGuard {
 
         bool b = ILP(lp).mint(msg.sender, _lpAmount);
 
-        require(b, "Shop: mint Amount");
+        require(b, "Shop: mint error");
 
         return true;
     }
