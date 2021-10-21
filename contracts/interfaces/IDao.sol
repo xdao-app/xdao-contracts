@@ -21,4 +21,12 @@ interface IDao {
     function quorum() external view returns (uint8);
 
     function executedTx(bytes32 _txHash) external view returns (bool);
+
+    function mintable() external view returns (bool);
+
+    function burnable() external view returns (bool);
+
+    function numberOfPermitted() external view returns (uint256);
+
+    function numberOfAdapters() external view returns (uint256);
 }

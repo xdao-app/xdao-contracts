@@ -368,4 +368,102 @@ describe("DaoViewer", () => {
       await daoViewer.getHashStatuses(dao.address, [txHash1, txHash2])
     ).to.eql([true, true])
   })
+
+  it("Get DAO Configuration", async () => {
+    signers = await ethers.getSigners()
+
+    ownerAddress = await signers[0].getAddress()
+
+    token = await new Token__factory(signers[0]).deploy()
+
+    shop = await new Shop__factory(signers[0]).deploy()
+
+    factory = await new Factory__factory(signers[0]).deploy(
+      shop.address,
+      token.address
+    )
+
+    await shop.setFactory(factory.address)
+
+    daoViewer = await new DaoViewer__factory(signers[0]).deploy()
+
+    await factory.create("FIRST", "FIRST", 51, [ownerAddress], [10])
+
+    expect(
+      (
+        await daoViewer.getDaoConfiguration(
+          factory.address,
+          await factory.daoAt(0)
+        )
+      ).slice(0, 11)
+    ).to.eql([
+      true,
+      true,
+      constants.AddressZero,
+      false,
+      false,
+      false,
+      false,
+      constants.Zero,
+      constants.Zero,
+      constants.Zero,
+      constants.Zero,
+    ])
+
+    const timestamp = dayjs().unix()
+
+    let VOTING = {
+      target: shop.address,
+      data: createData("createLp", ["string", "string"], ["FirstLP", "FLP"]),
+      value: 0,
+      nonce: 0,
+      timestamp,
+    }
+
+    let txHash = createTxHash(
+      await factory.daoAt(0),
+      VOTING.target,
+      VOTING.data,
+      VOTING.value,
+      VOTING.nonce,
+      VOTING.timestamp,
+      1337
+    )
+
+    let sig = await signers[0].signMessage(txHash)
+
+    expect(verifyMessage(txHash, sig)).to.eq(ownerAddress)
+
+    expect(
+      await Dao__factory.connect(await factory.daoAt(0), signers[0]).execute(
+        VOTING.target,
+        VOTING.data,
+        VOTING.value,
+        VOTING.nonce,
+        VOTING.timestamp,
+        [sig]
+      )
+    ).to.emit(shop, "LpCreated")
+
+    expect(
+      (
+        await daoViewer.getDaoConfiguration(
+          factory.address,
+          await factory.daoAt(0)
+        )
+      ).slice(0, 11)
+    ).to.eql([
+      true,
+      true,
+      await Dao__factory.connect(await factory.daoAt(0), signers[0]).lp(),
+      true,
+      true,
+      false,
+      false,
+      constants.Zero,
+      constants.Zero,
+      constants.Zero,
+      constants.Zero,
+    ])
+  })
 })

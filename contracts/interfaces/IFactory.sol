@@ -8,7 +8,7 @@ interface IFactory {
 
     function monthlyCost() external view returns (uint256);
 
-    function subscriptions(address dao) external view returns (uint256);
+    function subscriptions(address _dao) external view returns (uint256);
 
     function containsDao(address _dao) external view returns (bool);
 }

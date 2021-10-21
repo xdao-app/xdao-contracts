@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../interfaces/IFactory.sol";
 import "../interfaces/IDao.sol";
 import "../interfaces/ILP.sol";
+import "../interfaces/IShop.sol";
 
 contract DaoViewer {
     struct DaoInfo {
@@ -175,5 +176,60 @@ contract DaoViewer {
         }
 
         return hashStatuses;
+    }
+
+    struct DaoConfiguration {
+        bool gtMintable;
+        bool gtBurnable;
+        address lpAddress;
+        bool lpMintable;
+        bool lpBurnable;
+        bool lpMintableStatusFrozen;
+        bool lpBurnableStatusFrozen;
+        uint256 permittedLength;
+        uint256 adaptersLength;
+        uint256 monthlyCost;
+        uint256 numberOfPrivateOffers;
+    }
+
+    function getDaoConfiguration(address _factory, address _dao)
+        external
+        view
+        returns (DaoConfiguration memory)
+    {
+        address lp = IDao(_dao).lp();
+
+        if (lp == address(0)) {
+            return
+                DaoConfiguration({
+                    gtMintable: IDao(_dao).mintable(),
+                    gtBurnable: IDao(_dao).burnable(),
+                    lpAddress: address(0),
+                    lpMintable: false,
+                    lpBurnable: false,
+                    lpMintableStatusFrozen: false,
+                    lpBurnableStatusFrozen: false,
+                    permittedLength: IDao(_dao).numberOfPermitted(),
+                    adaptersLength: IDao(_dao).numberOfAdapters(),
+                    monthlyCost: IFactory(_factory).monthlyCost(),
+                    numberOfPrivateOffers: 0
+                });
+        } else {
+            return
+                DaoConfiguration({
+                    gtMintable: IDao(_dao).mintable(),
+                    gtBurnable: IDao(_dao).burnable(),
+                    lpAddress: lp,
+                    lpMintable: ILP(lp).mintable(),
+                    lpBurnable: ILP(lp).burnable(),
+                    lpMintableStatusFrozen: ILP(lp).mintableStatusFrozen(),
+                    lpBurnableStatusFrozen: ILP(lp).burnableStatusFrozen(),
+                    permittedLength: IDao(_dao).numberOfPermitted(),
+                    adaptersLength: IDao(_dao).numberOfAdapters(),
+                    monthlyCost: IFactory(_factory).monthlyCost(),
+                    numberOfPrivateOffers: IShop(IFactory(_factory).shop())
+                        .numberOfPrivateOffers(_dao)
+                });
+        }
     }
 }
