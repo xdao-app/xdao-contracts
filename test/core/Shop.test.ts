@@ -1,3 +1,4 @@
+import { BigNumber } from "@ethersproject/bignumber"
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { expect } from "chai"
 import dayjs from "dayjs"
@@ -6,6 +7,7 @@ import { parseEther, verifyMessage } from "ethers/lib/utils"
 import { ethers } from "hardhat"
 import {
   Dao,
+  DaoViewer__factory,
   Dao__factory,
   Factory,
   Factory__factory,
@@ -162,6 +164,31 @@ describe("Shop", () => {
       [sig]
     )
 
+    const daoViewer = await new DaoViewer__factory(signers[0]).deploy()
+
+    const investInfo = await daoViewer.getInvestInfo(factory.address)
+
+    expect(investInfo[0][0].slice(0, 6)).to.eql([
+      dao.address,
+      await dao.name(),
+      await dao.symbol(),
+      lp.address,
+      await lp.name(),
+      await lp.symbol(),
+    ])
+
+    expect(investInfo[1][0].slice(0, 3)).to.eql([
+      true,
+      goldToken.address,
+      parseEther("5"),
+    ])
+
+    expect(investInfo.slice(2)).to.eql([
+      [await goldToken.symbol()],
+      [await goldToken.decimals()],
+      [constants.Zero],
+    ])
+
     expect(await shop.publicOffers(dao.address)).to.have.property(
       "isActive",
       true
@@ -229,6 +256,34 @@ describe("Shop", () => {
       VOTING.timestamp,
       [sig]
     )
+
+    const daoViewer = await new DaoViewer__factory(signers[0]).deploy()
+
+    const privateOffersInfo = await daoViewer.getPrivateOffersInfo(
+      factory.address
+    )
+
+    expect(privateOffersInfo[0][0].slice(0, 6)).to.eql([
+      dao.address,
+      await dao.name(),
+      await dao.symbol(),
+      lp.address,
+      await lp.name(),
+      await lp.symbol(),
+    ])
+
+    expect(privateOffersInfo.slice(1)).to.eql([
+      [constants.One],
+      [
+        [
+          true,
+          friendAddress,
+          goldToken.address,
+          BigNumber.from("25"),
+          BigNumber.from("15"),
+        ],
+      ],
+    ])
 
     expect(await shop.numberOfPrivateOffers(dao.address)).to.eq(1)
 

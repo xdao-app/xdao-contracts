@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import "../interfaces/IFactory.sol";
 import "../interfaces/IDao.sol";
@@ -73,7 +73,7 @@ contract DaoViewer {
             DaoInfo[] memory _userDaos = new DaoInfo[](_daos.length);
 
             for (uint256 i = 0; i < _daos.length; i++) {
-                if (IERC20(_daos[i].dao).balanceOf(_user) > 0) {
+                if (IERC20Metadata(_daos[i].dao).balanceOf(_user) > 0) {
                     _userDaos[i] = _daos[i];
                 }
             }
@@ -92,7 +92,7 @@ contract DaoViewer {
         )
     {
         quorum = IDao(_dao).quorum();
-        totalSupply = IERC20(_dao).totalSupply();
+        totalSupply = IERC20Metadata(_dao).totalSupply();
 
         if (_users.length == 0) {
             return (0, totalSupply, quorum);
@@ -101,7 +101,7 @@ contract DaoViewer {
         share = 0;
 
         for (uint256 i = 0; i < _users.length; i++) {
-            share += IERC20(_dao).balanceOf(_users[i]);
+            share += IERC20Metadata(_dao).balanceOf(_users[i]);
         }
 
         return (share, totalSupply, quorum);
@@ -117,7 +117,7 @@ contract DaoViewer {
         )
     {
         quorum = IDao(_dao).quorum();
-        totalSupply = IERC20(_dao).totalSupply();
+        totalSupply = IERC20Metadata(_dao).totalSupply();
 
         shares = new uint256[](_users.length);
 
@@ -128,7 +128,7 @@ contract DaoViewer {
                 uint256 share = 0;
 
                 for (uint256 j = 0; j < _users[i].length; j++) {
-                    share += IERC20(_dao).balanceOf(_users[i][j]);
+                    share += IERC20Metadata(_dao).balanceOf(_users[i][j]);
                 }
 
                 shares[i] = share;
@@ -152,7 +152,7 @@ contract DaoViewer {
                 uint256 addrIdx = j + tokens.length * i;
 
                 if (tokens[j] != address(0x0)) {
-                    addrBalances[addrIdx] = IERC20(tokens[j]).balanceOf(
+                    addrBalances[addrIdx] = IERC20Metadata(tokens[j]).balanceOf(
                         users[i]
                     );
                 } else {
@@ -231,5 +231,120 @@ contract DaoViewer {
                         .numberOfPrivateOffers(_dao)
                 });
         }
+    }
+
+    function getInvestInfo(address _factory)
+        external
+        view
+        returns (
+            DaoInfo[] memory,
+            IShop.PublicOffer[] memory,
+            string[] memory,
+            uint8[] memory,
+            uint256[] memory
+        )
+    {
+        DaoInfo[] memory daos = getDaos(_factory);
+
+        uint256 daosLength = daos.length;
+
+        if (daosLength == 0) {
+            return (
+                new DaoInfo[](0),
+                new IShop.PublicOffer[](0),
+                new string[](0),
+                new uint8[](0),
+                new uint256[](0)
+            );
+        }
+
+        IShop.PublicOffer[] memory publicOffers = new IShop.PublicOffer[](
+            daosLength
+        );
+
+        for (uint256 i = 0; i < daosLength; i++) {
+            publicOffers[i] = IShop(IFactory(_factory).shop()).publicOffers(
+                daos[i].dao
+            );
+        }
+
+        string[] memory symbols = new string[](daosLength);
+        uint8[] memory decimals = new uint8[](daosLength);
+
+        for (uint256 i = 0; i < daosLength; i++) {
+            if (publicOffers[i].currency != address(0)) {
+                try IERC20Metadata(publicOffers[i].currency).symbol() returns (
+                    string memory s
+                ) {
+                    symbols[i] = s;
+                } catch {}
+
+                try
+                    IERC20Metadata(publicOffers[i].currency).decimals()
+                returns (uint8 d) {
+                    decimals[i] = d;
+                } catch {}
+            }
+        }
+
+        uint256[] memory numberOfPrivateOffers = new uint256[](daosLength);
+
+        for (uint256 i = 0; i < daosLength; i++) {
+            numberOfPrivateOffers[i] = IShop(IFactory(_factory).shop())
+                .numberOfPrivateOffers(daos[i].dao);
+        }
+
+        return (daos, publicOffers, symbols, decimals, numberOfPrivateOffers);
+    }
+
+    function getPrivateOffersInfo(address _factory)
+        external
+        view
+        returns (
+            DaoInfo[] memory,
+            uint256[] memory,
+            IShop.PrivateOffer[] memory
+        )
+    {
+        DaoInfo[] memory daos = getDaos(_factory);
+
+        uint256 daosLength = daos.length;
+
+        if (daosLength == 0) {
+            return (
+                new DaoInfo[](0),
+                new uint256[](0),
+                new IShop.PrivateOffer[](0)
+            );
+        }
+
+        uint256[] memory totalPrivateOffers = new uint256[](daosLength);
+
+        uint256 privateOffersLength = 0;
+
+        for (uint256 i = 0; i < daosLength; i++) {
+            uint256 numberOfPrivateOffers = IShop(IFactory(_factory).shop())
+                .numberOfPrivateOffers(daos[i].dao);
+
+            totalPrivateOffers[i] = numberOfPrivateOffers;
+
+            privateOffersLength += numberOfPrivateOffers;
+        }
+
+        IShop.PrivateOffer[] memory privateOffers = new IShop.PrivateOffer[](
+            privateOffersLength
+        );
+
+        uint256 indexCounter = 0;
+
+        for (uint256 i = 0; i < daosLength; i++) {
+            for (uint256 j = 0; j < totalPrivateOffers[i]; j++) {
+                privateOffers[indexCounter] = IShop(IFactory(_factory).shop())
+                    .privateOffers(daos[i].dao, j);
+                indexCounter++;
+            }
+        }
+
+        return (daos, totalPrivateOffers, privateOffers);
     }
 }

@@ -369,7 +369,7 @@ describe("DaoViewer", () => {
     ).to.eql([true, true])
   })
 
-  it("Get DAO Configuration", async () => {
+  it("Get DAO Configuration, Invest Info and Private Offers", async () => {
     signers = await ethers.getSigners()
 
     ownerAddress = await signers[0].getAddress()
@@ -386,6 +386,19 @@ describe("DaoViewer", () => {
     await shop.setFactory(factory.address)
 
     daoViewer = await new DaoViewer__factory(signers[0]).deploy()
+
+    expect(await daoViewer.getInvestInfo(factory.address)).to.eql([
+      [],
+      [],
+      [],
+      [],
+      [],
+    ])
+    expect(await daoViewer.getPrivateOffersInfo(factory.address)).to.eql([
+      [],
+      [],
+      [],
+    ])
 
     await factory.create("FIRST", "FIRST", 51, [ownerAddress], [10])
 
@@ -409,6 +422,40 @@ describe("DaoViewer", () => {
       constants.Zero,
       constants.Zero,
     ])
+
+    const investInfo = await daoViewer.getInvestInfo(factory.address)
+
+    expect(investInfo[0][0].slice(0, 6)).to.eql([
+      await factory.daoAt(0),
+      "FIRST",
+      "FIRST",
+      constants.AddressZero,
+      "",
+      "",
+    ])
+
+    expect(investInfo[1][0].slice(0, 3)).to.eql([
+      false,
+      constants.AddressZero,
+      constants.Zero,
+    ])
+
+    expect(investInfo.slice(2)).to.eql([[""], [0], [constants.Zero]])
+
+    const privateOffersInfo = await daoViewer.getPrivateOffersInfo(
+      factory.address
+    )
+
+    expect(privateOffersInfo[0][0].slice(0, 6)).to.eql([
+      await factory.daoAt(0),
+      "FIRST",
+      "FIRST",
+      constants.AddressZero,
+      "",
+      "",
+    ])
+
+    expect(privateOffersInfo.slice(1)).to.eql([[constants.Zero], []])
 
     const timestamp = dayjs().unix()
 

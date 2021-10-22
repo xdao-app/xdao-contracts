@@ -36,9 +36,9 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
     },
 
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${process.env.INFURA_KEY}`,
-      chainId: 3,
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
+      chainId: 4,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
     },
   },
