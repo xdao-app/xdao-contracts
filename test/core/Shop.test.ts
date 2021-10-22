@@ -283,6 +283,8 @@ describe("Shop", () => {
           BigNumber.from("15"),
         ],
       ],
+      [await goldToken.symbol()],
+      [await goldToken.decimals()],
     ])
 
     expect(await shop.numberOfPrivateOffers(dao.address)).to.eq(1)

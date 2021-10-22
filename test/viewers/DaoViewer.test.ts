@@ -398,6 +398,8 @@ describe("DaoViewer", () => {
       [],
       [],
       [],
+      [],
+      [],
     ])
 
     await factory.create("FIRST", "FIRST", 51, [ownerAddress], [10])
@@ -455,7 +457,7 @@ describe("DaoViewer", () => {
       "",
     ])
 
-    expect(privateOffersInfo.slice(1)).to.eql([[constants.Zero], []])
+    expect(privateOffersInfo.slice(1)).to.eql([[constants.Zero], [], [], []])
 
     const timestamp = dayjs().unix()
 

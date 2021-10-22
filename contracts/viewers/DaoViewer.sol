@@ -303,7 +303,9 @@ contract DaoViewer {
         returns (
             DaoInfo[] memory,
             uint256[] memory,
-            IShop.PrivateOffer[] memory
+            IShop.PrivateOffer[] memory,
+            string[] memory,
+            uint8[] memory
         )
     {
         DaoInfo[] memory daos = getDaos(_factory);
@@ -314,7 +316,9 @@ contract DaoViewer {
             return (
                 new DaoInfo[](0),
                 new uint256[](0),
-                new IShop.PrivateOffer[](0)
+                new IShop.PrivateOffer[](0),
+                new string[](0),
+                new uint8[](0)
             );
         }
 
@@ -322,9 +326,12 @@ contract DaoViewer {
 
         uint256 privateOffersLength = 0;
 
+        IShop shop = IShop(IFactory(_factory).shop());
+
         for (uint256 i = 0; i < daosLength; i++) {
-            uint256 numberOfPrivateOffers = IShop(IFactory(_factory).shop())
-                .numberOfPrivateOffers(daos[i].dao);
+            uint256 numberOfPrivateOffers = shop.numberOfPrivateOffers(
+                daos[i].dao
+            );
 
             totalPrivateOffers[i] = numberOfPrivateOffers;
 
@@ -335,16 +342,37 @@ contract DaoViewer {
             privateOffersLength
         );
 
+        string[] memory symbols = new string[](privateOffersLength);
+
+        uint8[] memory decimals = new uint8[](privateOffersLength);
+
         uint256 indexCounter = 0;
 
         for (uint256 i = 0; i < daosLength; i++) {
             for (uint256 j = 0; j < totalPrivateOffers[i]; j++) {
-                privateOffers[indexCounter] = IShop(IFactory(_factory).shop())
-                    .privateOffers(daos[i].dao, j);
+                IShop.PrivateOffer memory privateOffer = shop.privateOffers(
+                    daos[i].dao,
+                    j
+                );
+
+                privateOffers[indexCounter] = privateOffer;
+
+                try IERC20Metadata(privateOffers[i].currency).symbol() returns (
+                    string memory s
+                ) {
+                    symbols[i] = s;
+                } catch {}
+
+                try
+                    IERC20Metadata(privateOffers[i].currency).decimals()
+                returns (uint8 d) {
+                    decimals[i] = d;
+                } catch {}
+
                 indexCounter++;
             }
         }
 
-        return (daos, totalPrivateOffers, privateOffers);
+        return (daos, totalPrivateOffers, privateOffers, symbols, decimals);
     }
 }
