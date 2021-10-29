@@ -357,16 +357,16 @@ contract DaoViewer {
 
                 privateOffers[indexCounter] = privateOffer;
 
-                try IERC20Metadata(privateOffers[i].currency).symbol() returns (
+                try IERC20Metadata(privateOffer.currency).symbol() returns (
                     string memory s
                 ) {
-                    symbols[i] = s;
+                    symbols[indexCounter] = s;
                 } catch {}
 
-                try
-                    IERC20Metadata(privateOffers[i].currency).decimals()
-                returns (uint8 d) {
-                    decimals[i] = d;
+                try IERC20Metadata(privateOffer.currency).decimals() returns (
+                    uint8 d
+                ) {
+                    decimals[indexCounter] = d;
                 } catch {}
 
                 indexCounter++;
