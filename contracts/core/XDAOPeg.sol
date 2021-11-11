@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 
-contract XDAO is ERC20, ERC20Burnable, Ownable, ERC20Permit {
+contract XDAOPeg is ERC20, ERC20Burnable, Ownable, ERC20Permit {
     constructor() ERC20("XDAO", "XDAO") ERC20Permit("XDAO") {}
 
     function mint(address to, uint256 amount) public onlyOwner {
