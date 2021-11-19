@@ -31,13 +31,32 @@ const config: HardhatUserConfig = {
     },
 
     mainnet: {
-      url: `https://eth.getblock.io/?api_key=${process.env.GETBLOCK_KEY}}`,
+      url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/eth/mainnet`,
       chainId: 1,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
     },
 
+    heco: {
+      url: `https://http-mainnet.hecochain.com`,
+      chainId: 128,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
+    },
+
+    bsc: {
+      url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/bsc/mainnet`,
+      chainId: 56,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
+    },
+
+    polygon: {
+      url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/polygon/mainnet`,
+      chainId: 137,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
+      gasPrice: 30000000000,
+    },
+
     rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
+      url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/eth/rinkeby`,
       chainId: 4,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
     },

@@ -4,7 +4,7 @@ import {
   DaoViewer__factory,
   Factory__factory,
   Shop__factory,
-  XDAO__factory,
+  XDAOPeg__factory,
 } from "../../typechain"
 
 dotenv.config()
@@ -18,7 +18,7 @@ async function main() {
 
   console.log("Shop:", shop.address)
 
-  const xdao = await new XDAO__factory(signers[0]).deploy()
+  const xdao = await new XDAOPeg__factory(signers[0]).deploy()
 
   await xdao.deployed()
 
@@ -59,10 +59,10 @@ async function main() {
   try {
     await run("verify:verify", {
       address: xdao.address,
-      contract: "contracts/core/XDAO.sol:XDAO",
+      contract: "contracts/core/XDAOPeg.sol:XDAOPeg",
     })
   } catch {
-    console.log("Verification problem (XDAO)")
+    console.log("Verification problem (XDAOPeg)")
   }
 
   try {
