@@ -3,7 +3,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import dayjs from "dayjs"
 import * as dotenv from "dotenv"
 import { parseEther } from "ethers/lib/utils"
-import { ethers } from "hardhat"
+import { ethers, network } from "hardhat"
 import { createData, createTxHash } from "../../test/utils"
 import {
   DaoViewer__factory,
@@ -41,6 +41,8 @@ async function execute(
 }
 
 async function main() {
+  await network.provider.request({ method: "hardhat_reset", params: [] })
+
   const signers = await ethers.getSigners()
 
   const shop = await new Shop__factory(signers[0]).deploy()
