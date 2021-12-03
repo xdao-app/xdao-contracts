@@ -1,6 +1,6 @@
-# xDAO
+# XDAO
 
-This repository contains smart contracts for the xDAO.
+This repository contains smart contracts for the XDAO.
 
 ## Development
 
@@ -30,7 +30,7 @@ yarn coverage
 
 ## Licensing
 
-The primary license for xDAO is the Business Source License 1.1 (`BUSL-1.1`), see [`LICENSE`](./LICENSE).
+The primary license for XDAO is the Business Source License 1.1 (`BUSL-1.1`), see [`LICENSE`](./LICENSE).
 
 ### Exceptions
 
