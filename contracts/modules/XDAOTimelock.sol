@@ -3,7 +3,7 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract XDAOTimelock{
+contract XDAOTimelock {
     using SafeERC20 for IERC20;
 
     IERC20 public immutable token;
@@ -22,12 +22,11 @@ contract XDAOTimelock{
         uint256[] memory _timestamps,
         uint256[] memory _amounts
     ) {
-        token= _token;
+        token = _token;
         beneficiary = _beneficiary;
         timestamps = _timestamps;
         amounts = _amounts;
     }
-
 
     function release() external returns (bool) {
         require(block.timestamp >= timestamps[unlocks], "Too early");
@@ -39,14 +38,25 @@ contract XDAOTimelock{
         return true;
     }
 
-    function getState() public view returns (
-        address,
-        address,
-        uint8,
-        uint256[] memory,
-        uint256[] memory,
-        uint256
-    ) {
-        return (address(token), beneficiary, unlocks, timestamps, amounts, token.balanceOf(address(this)));
+    function getState()
+        public
+        view
+        returns (
+            address,
+            address,
+            uint8,
+            uint256[] memory,
+            uint256[] memory,
+            uint256
+        )
+    {
+        return (
+            address(token),
+            beneficiary,
+            unlocks,
+            timestamps,
+            amounts,
+            token.balanceOf(address(this))
+        );
     }
 }
