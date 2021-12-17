@@ -152,4 +152,20 @@ contract PrivateExitModule is ReentrancyGuard {
 
         return true;
     }
+
+    function getOffers(address _dao)
+        external
+        view
+        returns (PrivateExitOffer[] memory)
+    {
+        PrivateExitOffer[] memory offers = new PrivateExitOffer[](
+            numberOfPrivateOffers[_dao]
+        );
+
+        for (uint256 i = 0; i < numberOfPrivateOffers[_dao]; i++) {
+            offers[i] = privateExitOffers[_dao][i];
+        }
+
+        return offers;
+    }
 }
