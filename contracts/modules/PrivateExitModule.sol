@@ -25,7 +25,7 @@ contract PrivateExitModule is ReentrancyGuard {
         uint256 lpAmount;
         uint256 ethAmount;
         address[] tokenAddresses;
-        address[] tokenAmounts;
+        uint256[] tokenAmounts;
     }
 
     mapping(address => mapping(uint256 => PrivateExitOffer))
@@ -38,7 +38,7 @@ contract PrivateExitModule is ReentrancyGuard {
         uint256 _lpAmount,
         uint256 _ethAmount,
         address[] memory _tokenAddresses,
-        address[] memory _tokenAmounts
+        uint256[] memory _tokenAmounts
     ) external returns (bool success) {
         require(
             _tokenAddresses.length == _tokenAmounts.length,
