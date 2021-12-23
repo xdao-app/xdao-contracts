@@ -4,6 +4,7 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "../interfaces/ILP.sol";
 
 interface IDaoPrivateExitModule {
@@ -16,8 +17,18 @@ interface IDaoPrivateExitModule {
     ) external returns (bool);
 }
 
+interface ILPPrivateExitModule {
+    function burn(
+        uint256 _amount,
+        address[] memory _tokens,
+        address[] memory _adapters,
+        address[] memory _pools
+    ) external returns (bool);
+}
+
 contract PrivateExitModule is ReentrancyGuard {
     using SafeERC20 for IERC20;
+    using Address for address payable;
 
     struct PrivateExitOffer {
         bool isActive;
@@ -32,6 +43,8 @@ contract PrivateExitModule is ReentrancyGuard {
         public privateExitOffers; // privateExitOffers[dao][offerId]
 
     mapping(address => uint256) public numberOfPrivateOffers;
+
+    mapping(address => uint256) public pendingEth;
 
     function createPrivateExitOffer(
         address _recipient,
@@ -57,6 +70,20 @@ contract PrivateExitModule is ReentrancyGuard {
         });
 
         numberOfPrivateOffers[msg.sender]++;
+
+        return true;
+    }
+
+    function disablePrivateExitOffer(uint256 _offerId)
+        external
+        returns (bool success)
+    {
+        require(
+            privateExitOffers[msg.sender][_offerId].isActive == true,
+            "PrivateExitModule: Already Disabled"
+        );
+
+        privateExitOffers[msg.sender][_offerId].isActive = false;
 
         return true;
     }
@@ -100,47 +127,38 @@ contract PrivateExitModule is ReentrancyGuard {
 
         IERC20(lpAddress).safeTransferFrom(
             msg.sender,
-            _daoAddress,
+            address(this),
             offer.lpAmount
         );
 
-        dao.executePermitted(
-            lpAddress,
-            abi.encodeWithSignature(
-                "approve(address,uint256)",
-                lpAddress,
-                offer.lpAmount
-            ),
-            0
-        );
+        IERC20(lpAddress).approve(lpAddress, offer.lpAmount);
 
         address[] memory emptyAddressArray = new address[](0);
 
-        dao.executePermitted(
-            lpAddress,
-            abi.encodeWithSignature(
-                "burn(uint256,address[],address[],address[])",
-                offer.lpAmount,
-                emptyAddressArray,
-                emptyAddressArray,
-                emptyAddressArray
-            ),
-            0
+        ILPPrivateExitModule(lpAddress).burn(
+            offer.lpAmount,
+            emptyAddressArray,
+            emptyAddressArray,
+            emptyAddressArray
         );
 
         for (uint256 i = 0; i < offer.tokenAddresses.length; i++) {
-            dao.executePermitted(
-                offer.tokenAddresses[i],
-                abi.encodeWithSignature(
-                    "transfer(address,uint256)",
-                    msg.sender,
-                    offer.tokenAmounts[i]
-                ),
-                0
-            );
+            if (offer.tokenAmounts[i] > 0) {
+                dao.executePermitted(
+                    offer.tokenAddresses[i],
+                    abi.encodeWithSignature(
+                        "transfer(address,uint256)",
+                        msg.sender,
+                        offer.tokenAmounts[i]
+                    ),
+                    0
+                );
+            }
         }
 
-        dao.executePermitted(msg.sender, "", offer.ethAmount);
+        if (offer.ethAmount > 0) {
+            dao.executePermitted(msg.sender, "", offer.ethAmount);
+        }
 
         if (!burnableStatus) {
             dao.executePermitted(
@@ -167,5 +185,23 @@ contract PrivateExitModule is ReentrancyGuard {
         }
 
         return offers;
+    }
+
+    event Received(address indexed, uint256);
+
+    receive() external payable {
+        pendingEth[msg.sender] += msg.value;
+
+        emit Received(msg.sender, msg.value);
+    }
+
+    function release() external nonReentrant returns (bool) {
+        uint256 amount = pendingEth[msg.sender];
+
+        pendingEth[msg.sender] = 0;
+
+        payable(msg.sender).sendValue(amount);
+
+        return true;
     }
 }
