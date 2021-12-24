@@ -208,5 +208,8 @@ describe("PrivateExitModule", () => {
     expect(await ethers.provider.getBalance(dao.address)).to.eql(
       parseEther("9.93")
     )
+
+    expect(await usdc.balanceOf(friendAddress)).to.eql(parseEther("0.9"))
+    expect(await btc.balanceOf(friendAddress)).to.eql(parseEther("1.3"))
   })
 })
