@@ -180,25 +180,7 @@ describe("PrivateExitModule", () => {
       await privateExitModule.connect(signers[1]).privateExit(dao.address, 0)
     ).to.changeEtherBalances(
       [dao, signers[1], privateExitModule],
-      [parseEther("-5.07"), parseEther("0.07"), parseEther("5")]
-    )
-
-    expect(await privateExitModule.pendingEth(dao.address)).to.eql(
-      parseEther("5")
-    )
-
-    await executeTx(
-      dao.address,
-      privateExitModule.address,
-      "release",
-      [],
-      [],
-      0,
-      signers[0]
-    )
-
-    expect(await privateExitModule.pendingEth(dao.address)).to.eql(
-      constants.Zero
+      [parseEther("-0.07"), parseEther("0.07"), parseEther("0")]
     )
 
     expect(await ethers.provider.getBalance(privateExitModule.address)).to.eql(

@@ -44,8 +44,6 @@ contract PrivateExitModule is ReentrancyGuard {
 
     mapping(address => uint256) public numberOfPrivateOffers;
 
-    mapping(address => uint256) public pendingEth;
-
     function createPrivateExitOffer(
         address _recipient,
         uint256 _lpAmount,
@@ -190,18 +188,8 @@ contract PrivateExitModule is ReentrancyGuard {
     event Received(address indexed, uint256);
 
     receive() external payable {
-        pendingEth[msg.sender] += msg.value;
+        payable(msg.sender).sendValue(msg.value);
 
         emit Received(msg.sender, msg.value);
-    }
-
-    function release() external nonReentrant returns (bool) {
-        uint256 amount = pendingEth[msg.sender];
-
-        pendingEth[msg.sender] = 0;
-
-        payable(msg.sender).sendValue(amount);
-
-        return true;
     }
 }
