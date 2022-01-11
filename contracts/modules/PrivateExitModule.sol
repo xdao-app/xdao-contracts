@@ -44,6 +44,14 @@ contract PrivateExitModule is ReentrancyGuard {
 
     mapping(address => uint256) public numberOfPrivateOffers;
 
+    event PrivateExit(
+        address indexed recipient,
+        uint256 indexed lpAmount,
+        uint256 ethAmount,
+        address[] tokenAddresses,
+        uint256[] tokenAmounts
+    );
+
     function createPrivateExitOffer(
         address _recipient,
         uint256 _lpAmount,
@@ -165,6 +173,14 @@ contract PrivateExitModule is ReentrancyGuard {
                 0
             );
         }
+
+        emit PrivateExit(
+            offer.recipient,
+            offer.lpAmount,
+            offer.ethAmount,
+            offer.tokenAddresses,
+            offer.tokenAmounts
+        );
 
         return true;
     }
