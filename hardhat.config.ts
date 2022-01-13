@@ -48,6 +48,12 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
     },
 
+    avalanche: {
+      url: `https://api.avax.network/ext/bc/C/rpc`,
+      chainId: 43114,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
+    },
+
     polygon: {
       url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/polygon/mainnet`,
       chainId: 137,
