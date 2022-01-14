@@ -48,6 +48,12 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
     },
 
+    fantom: {
+      url: `https://rpc.ftm.tools/`,
+      chainId: 250,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
+    },
+
     avalanche: {
       url: `https://api.avax.network/ext/bc/C/rpc`,
       chainId: 43114,
