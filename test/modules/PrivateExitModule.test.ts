@@ -88,7 +88,7 @@ describe("PrivateExitModule", () => {
     lp = LP__factory.connect(await dao.lp(), signers[0])
   })
 
-  it("Create and Exit", async () => {
+  it("Create, Exit, Disable, Read", async () => {
     const friendAddress = await signers[1].getAddress()
 
     const usdc = await new NamedToken__factory(signers[0]).deploy(
@@ -176,6 +176,16 @@ describe("PrivateExitModule", () => {
       value: parseEther("10"),
     })
 
+    await executeTx(
+      dao.address,
+      lp.address,
+      "changeBurnable",
+      ["bool"],
+      [false],
+      0,
+      signers[0]
+    )
+
     await expect(
       await privateExitModule.connect(signers[1]).privateExit(dao.address, 0)
     ).to.changeEtherBalances(
@@ -193,5 +203,43 @@ describe("PrivateExitModule", () => {
 
     expect(await usdc.balanceOf(friendAddress)).to.eql(parseEther("0.9"))
     expect(await btc.balanceOf(friendAddress)).to.eql(parseEther("1.3"))
+
+    // Create and Disable
+
+    await executeTx(
+      dao.address,
+      privateExitModule.address,
+      "createPrivateExitOffer",
+      ["address", "uint256", "uint256", "address[]", "uint256[]"],
+      [
+        friendAddress,
+        parseEther("1"),
+        parseEther("0.07"),
+        [usdc.address, btc.address],
+        [parseEther("0.9"), parseEther("1.3")],
+      ],
+      0,
+      signers[0]
+    )
+
+    expect(
+      (await privateExitModule.privateExitOffers(dao.address, 1)).isActive
+    ).to.eq(true)
+
+    await executeTx(
+      dao.address,
+      privateExitModule.address,
+      "disablePrivateExitOffer",
+      ["uint256"],
+      [1],
+      0,
+      signers[0]
+    )
+
+    expect(
+      (await privateExitModule.privateExitOffers(dao.address, 1)).isActive
+    ).to.eq(false)
+
+    expect((await privateExitModule.getOffers(dao.address)).length).to.eq(2)
   })
 })
