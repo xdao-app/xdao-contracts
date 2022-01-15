@@ -10,6 +10,7 @@ import {
   Dao__factory,
   Factory__factory,
   NamedToken__factory,
+  PrivateExitModule__factory,
   Shop__factory,
   XDAO__factory,
 } from "../../typechain"
@@ -222,6 +223,10 @@ async function main() {
       signers[0]
     )
   }
+
+  const privateExitModule = await new PrivateExitModule__factory(signers[0]).deploy()
+
+  console.log('PrivateExitModule:', privateExitModule.address)
 
   console.log("Done")
 }
