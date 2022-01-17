@@ -16,6 +16,8 @@ contract XDAOTimelock {
 
     uint8 public unlocks = 0;
 
+    event Release(uint256 timestamp, uint256 amount);
+
     constructor(
         IERC20 _token,
         address _beneficiary,
@@ -32,6 +34,8 @@ contract XDAOTimelock {
         require(block.timestamp >= timestamps[unlocks], "Too early");
 
         token.safeTransfer(beneficiary, amounts[unlocks]);
+
+        emit Release(timestamps[unlocks], amounts[unlocks]);
 
         unlocks++;
 
