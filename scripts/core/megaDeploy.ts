@@ -10,6 +10,7 @@ import {
   Dao__factory,
   Factory__factory,
   NamedToken__factory,
+  PrivateExitModule__factory,
   Shop__factory,
   XDAOTimelock__factory,
   XDAO__factory,
@@ -223,6 +224,10 @@ async function main() {
       signers[0]
     )
   }
+
+  const privateExitModule = await new PrivateExitModule__factory(signers[0]).deploy()
+
+  console.log("PrivateExitModule:", privateExitModule.address)
 
   const xdaoTimelock = await new XDAOTimelock__factory(signers[0]).deploy(
     xdaoToken.address,
