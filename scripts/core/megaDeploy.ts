@@ -224,9 +224,11 @@ async function main() {
     )
   }
 
-  const privateExitModule = await new PrivateExitModule__factory(signers[0]).deploy()
+  const privateExitModule = await new PrivateExitModule__factory(
+    signers[0]
+  ).deploy()
 
-  console.log('PrivateExitModule:', privateExitModule.address)
+  console.log("PrivateExitModule:", privateExitModule.address)
 
   console.log("Done")
 }
