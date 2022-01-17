@@ -1,5 +1,7 @@
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
 import { BigNumberish } from "ethers"
 import { AbiCoder, arrayify, id, keccak256 } from "ethers/lib/utils"
+import { Dao__factory } from "../typechain"
 
 // createData('transfer', ['address','uint256'], ['0x000000000000000000000000000000000000dEaD', '100'])
 // ===
@@ -40,3 +42,41 @@ export const createTxHash = (
       )
     )
   )
+
+async function execute(
+  daoAddress: string,
+  targetAddress: string,
+  data: string,
+  value: BigNumberish,
+  nonce: BigNumberish,
+  signer: SignerWithAddress
+) {
+  const timestamp = Math.floor(Date.now() / 1000)
+
+  const daoContract = Dao__factory.connect(daoAddress, signer)
+
+  await daoContract.execute(targetAddress, data, value, nonce, timestamp, [
+    await signer.signMessage(
+      createTxHash(daoAddress, targetAddress, data, 0, 0, timestamp, 1337)
+    ),
+  ])
+}
+
+export const executeTx = async (
+  daoAddress: string,
+  targetAddress: string,
+  func: string,
+  argtypes: string[] = [],
+  args: any[] = [],
+  value: BigNumberish = 0,
+  signer: SignerWithAddress
+) => {
+  await execute(
+    daoAddress,
+    targetAddress,
+    createData(func, argtypes, args),
+    value,
+    0,
+    signer
+  )
+}

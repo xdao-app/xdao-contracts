@@ -12,7 +12,6 @@ import {
   NamedToken__factory,
   PrivateExitModule__factory,
   Shop__factory,
-  XDAOTimelock__factory,
   XDAO__factory,
 } from "../../typechain"
 
@@ -225,32 +224,11 @@ async function main() {
     )
   }
 
-  const privateExitModule = await new PrivateExitModule__factory(signers[0]).deploy()
+  const privateExitModule = await new PrivateExitModule__factory(
+    signers[0]
+  ).deploy()
 
   console.log("PrivateExitModule:", privateExitModule.address)
-
-  const xdaoTimelock = await new XDAOTimelock__factory(signers[0]).deploy(
-    xdaoToken.address,
-    await factory.daoAt(5),
-    [
-      dayjs("2020-11-10").unix(),
-      dayjs("2021-06-10").unix(),
-      dayjs("2021-11-10").unix(),
-      dayjs("2022-06-10").unix(),
-      dayjs("2022-11-10").unix(),
-      dayjs("2023-11-10").unix(),
-    ],
-    [
-      parseEther("280000"),
-      parseEther("285000"),
-      parseEther("320000"),
-      parseEther("277701"),
-      parseEther("231022"),
-      parseEther("472517"),
-    ]
-  )
-
-  await xdaoToken.transfer(xdaoTimelock.address, parseEther("2172271.12"))
 
   console.log("Done")
 }
