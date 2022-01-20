@@ -61,10 +61,10 @@ const config: HardhatUserConfig = {
     },
 
     polygon: {
-      url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/polygon/mainnet`,
+      url: `https://polygon-rpc.com`,
       chainId: 137,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
-      gasPrice: 30000000000,
+      gasPrice: 40000000000,
     },
 
     rinkeby: {
