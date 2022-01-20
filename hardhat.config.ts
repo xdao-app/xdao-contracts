@@ -67,6 +67,12 @@ const config: HardhatUserConfig = {
       gasPrice: 40000000000,
     },
 
+    celo: {
+      url: `https://forno.celo.org`,
+      chainId: 42220,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
+    },
+
     rinkeby: {
       url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/eth/rinkeby`,
       chainId: 4,
