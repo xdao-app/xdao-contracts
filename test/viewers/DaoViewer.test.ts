@@ -1,14 +1,15 @@
-import { BigNumber } from "@ethersproject/bignumber"
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { expect } from "chai"
-import dayjs from "dayjs"
-import { constants } from "ethers"
-import { parseEther, verifyMessage } from "ethers/lib/utils"
-import { ethers } from "hardhat"
+import { BigNumber } from '@ethersproject/bignumber'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { expect } from 'chai'
+import dayjs from 'dayjs'
+import { constants } from 'ethers'
+import { parseEther, verifyMessage } from 'ethers/lib/utils'
+import { ethers } from 'hardhat'
+
 import {
+  Dao__factory,
   DaoViewer,
   DaoViewer__factory,
-  Dao__factory,
   Factory,
   Factory__factory,
   LP,
@@ -16,11 +17,11 @@ import {
   Shop,
   Shop__factory,
   Token,
-  Token__factory,
-} from "../../typechain"
-import { createData, createTxHash } from "../utils"
+  Token__factory
+} from '../../typechain-types'
+import { createData, createTxHash } from '../utils'
 
-describe("DaoViewer", () => {
+describe('DaoViewer', () => {
   let shop: Shop
 
   let factory: Factory
@@ -35,10 +36,10 @@ describe("DaoViewer", () => {
 
   let daoViewer: DaoViewer
 
-  it("Works Properly", async () => {
+  it('Works Properly', async () => {
     signers = await ethers.getSigners()
 
-    ownerAddress = await signers[0].getAddress()
+    ownerAddress = signers[0].address
 
     token = await new Token__factory(signers[0]).deploy()
 
@@ -53,14 +54,14 @@ describe("DaoViewer", () => {
 
     daoViewer = await new DaoViewer__factory(signers[0]).deploy()
 
-    expect(await daoViewer.getDaos(factory.address)).to.be.an("array").that.is
+    expect(await daoViewer.getDaos(factory.address)).to.be.an('array').that.is
       .empty
 
     expect(await daoViewer.userDaos(ownerAddress, factory.address)).to.be.an(
-      "array"
+      'array'
     ).that.is.empty
 
-    await factory.create("FIRST", "FIRST", 51, [ownerAddress], [10])
+    await factory.create('FIRST', 'FIRST', 51, [ownerAddress], [10])
 
     const [share0, totalSupply0, quorum0] = await daoViewer.getShare(
       await factory.daoAt(0),
@@ -77,7 +78,7 @@ describe("DaoViewer", () => {
     expect([shares00, +totalSupply00, quorum00]).to.eql([
       [constants.Zero],
       10,
-      51,
+      51
     ])
 
     const [share1, totalSupply1, quorum1] = await daoViewer.getShare(
@@ -89,13 +90,13 @@ describe("DaoViewer", () => {
 
     const [shares11, totalSupply11, quorum11] = await daoViewer.getShares(
       await factory.daoAt(0),
-      [[ownerAddress], [], [], [ownerAddress, await signers[1].getAddress()]]
+      [[ownerAddress], [], [], [ownerAddress, signers[1].address]]
     )
 
     expect([shares11, +totalSupply11, quorum11]).to.eql([
       [BigNumber.from(10), constants.Zero, constants.Zero, BigNumber.from(10)],
       10,
-      51,
+      51
     ])
 
     expect(await daoViewer.getDaos(factory.address)).to.have.lengthOf(1)
@@ -104,18 +105,18 @@ describe("DaoViewer", () => {
       await factory.daoAt(0)
     )
     expect((await daoViewer.getDao(await factory.daoAt(0))).daoName).to.eq(
-      "FIRST"
+      'FIRST'
     )
     expect((await daoViewer.getDao(await factory.daoAt(0))).daoSymbol).to.eq(
-      "FIRST"
+      'FIRST'
     )
     expect((await daoViewer.getDao(await factory.daoAt(0))).lp).to.eq(
       constants.AddressZero
     )
-    expect((await daoViewer.getDao(await factory.daoAt(0))).lpName).to.eq("")
-    expect((await daoViewer.getDao(await factory.daoAt(0))).lpSymbol).to.eq("")
+    expect((await daoViewer.getDao(await factory.daoAt(0))).lpName).to.eq('')
+    expect((await daoViewer.getDao(await factory.daoAt(0))).lpSymbol).to.eq('')
 
-    await factory.create("SECOND", "SECOND", 61, [ownerAddress], [20])
+    await factory.create('SECOND', 'SECOND', 61, [ownerAddress], [20])
 
     expect(await daoViewer.getDaos(factory.address)).to.have.lengthOf(2)
 
@@ -123,18 +124,18 @@ describe("DaoViewer", () => {
       await factory.daoAt(1)
     )
     expect((await daoViewer.getDao(await factory.daoAt(1))).daoName).to.eq(
-      "SECOND"
+      'SECOND'
     )
     expect((await daoViewer.getDao(await factory.daoAt(1))).daoSymbol).to.eq(
-      "SECOND"
+      'SECOND'
     )
     expect((await daoViewer.getDao(await factory.daoAt(1))).lp).to.eq(
       constants.AddressZero
     )
-    expect((await daoViewer.getDao(await factory.daoAt(1))).lpName).to.eq("")
-    expect((await daoViewer.getDao(await factory.daoAt(1))).lpSymbol).to.eq("")
+    expect((await daoViewer.getDao(await factory.daoAt(1))).lpName).to.eq('')
+    expect((await daoViewer.getDao(await factory.daoAt(1))).lpSymbol).to.eq('')
 
-    await factory.create("THIRD", "THIRD", 71, [ownerAddress], [30])
+    await factory.create('THIRD', 'THIRD', 71, [ownerAddress], [30])
 
     expect(await daoViewer.getDaos(factory.address)).to.have.lengthOf(3)
 
@@ -142,17 +143,17 @@ describe("DaoViewer", () => {
       await factory.daoAt(2)
     )
     expect((await daoViewer.getDao(await factory.daoAt(2))).daoName).to.eq(
-      "THIRD"
+      'THIRD'
     )
     expect((await daoViewer.getDao(await factory.daoAt(2))).daoSymbol).to.eq(
-      "THIRD"
+      'THIRD'
     )
     expect((await daoViewer.getDao(await factory.daoAt(2))).lp).to.eq(
       constants.AddressZero
     )
-    expect((await daoViewer.getDao(await factory.daoAt(2))).lpName).to.eq("")
+    expect((await daoViewer.getDao(await factory.daoAt(2))).lpName).to.eq('')
 
-    expect((await daoViewer.getDao(await factory.daoAt(2))).lpSymbol).to.eq("")
+    expect((await daoViewer.getDao(await factory.daoAt(2))).lpSymbol).to.eq('')
 
     const firstDao = Dao__factory.connect(await factory.daoAt(0), signers[0])
 
@@ -160,15 +161,15 @@ describe("DaoViewer", () => {
 
     const timestamp = dayjs().unix()
 
-    let VOTING = {
+    const VOTING = {
       target: shop.address,
-      data: createData("createLp", ["string", "string"], ["FirstLP", "FLP"]),
+      data: createData('createLp', ['string', 'string'], ['FirstLP', 'FLP']),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
-    let txHash = createTxHash(
+    const txHash = createTxHash(
       firstDao.address,
       VOTING.target,
       VOTING.data,
@@ -178,7 +179,7 @@ describe("DaoViewer", () => {
       1337
     )
 
-    let sig = await signers[0].signMessage(txHash)
+    const sig = await signers[0].signMessage(txHash)
 
     expect(verifyMessage(txHash, sig)).to.eq(ownerAddress)
 
@@ -191,7 +192,7 @@ describe("DaoViewer", () => {
         VOTING.timestamp,
         [sig]
       )
-    ).to.emit(shop, "LpCreated")
+    ).to.emit(shop, 'LpCreated')
 
     expect(await firstDao.lp()).to.not.eq(constants.AddressZero)
 
@@ -201,10 +202,10 @@ describe("DaoViewer", () => {
 
     expect((await daoViewer.getDao(firstDao.address)).lp).to.eq(lp.address)
     expect((await daoViewer.getDao(await factory.daoAt(0))).lpName).to.eq(
-      "FirstLP"
+      'FirstLP'
     )
     expect((await daoViewer.getDao(await factory.daoAt(0))).lpSymbol).to.eq(
-      "FLP"
+      'FLP'
     )
 
     expect(
@@ -212,26 +213,26 @@ describe("DaoViewer", () => {
     ).to.have.lengthOf(3)
   })
 
-  it("Balance Checker", async () => {
+  it('Balance Checker', async () => {
     const signers = await ethers.getSigners()
     const gold = await new Token__factory(signers[0]).deploy()
     const silver = await new Token__factory(signers[0]).deploy()
     const bronze = await new Token__factory(signers[0]).deploy()
 
-    const owner = await signers[0].getAddress()
-    const friend = await signers[1].getAddress()
+    const owner = signers[0].address
+    const friend = signers[1].address
 
-    await gold.transfer(friend, parseEther("1"))
-    await silver.transfer(friend, parseEther("2"))
-    await bronze.transfer(friend, parseEther("3"))
+    await gold.transfer(friend, parseEther('1'))
+    await silver.transfer(friend, parseEther('2'))
+    await bronze.transfer(friend, parseEther('3'))
 
-    expect(await gold.balanceOf(owner)).to.eql(parseEther("99"))
-    expect(await silver.balanceOf(owner)).to.eql(parseEther("98"))
-    expect(await bronze.balanceOf(owner)).to.eql(parseEther("97"))
+    expect(await gold.balanceOf(owner)).to.eql(parseEther('99'))
+    expect(await silver.balanceOf(owner)).to.eql(parseEther('98'))
+    expect(await bronze.balanceOf(owner)).to.eql(parseEther('97'))
 
-    expect(await gold.balanceOf(friend)).to.eql(parseEther("1"))
-    expect(await silver.balanceOf(friend)).to.eql(parseEther("2"))
-    expect(await bronze.balanceOf(friend)).to.eql(parseEther("3"))
+    expect(await gold.balanceOf(friend)).to.eql(parseEther('1'))
+    expect(await silver.balanceOf(friend)).to.eql(parseEther('2'))
+    expect(await bronze.balanceOf(friend)).to.eql(parseEther('3'))
 
     const daoViewer = await new DaoViewer__factory(signers[0]).deploy()
 
@@ -241,33 +242,33 @@ describe("DaoViewer", () => {
         [gold.address, silver.address, bronze.address]
       )
     ).to.eql([
-      parseEther("99"),
-      parseEther("98"),
-      parseEther("97"),
-      parseEther("1"),
-      parseEther("2"),
-      parseEther("3"),
+      parseEther('99'),
+      parseEther('98'),
+      parseEther('97'),
+      parseEther('1'),
+      parseEther('2'),
+      parseEther('3')
     ])
 
     const [firstReceiver, secondReceiver, thirdReceiver] = [
       ethers.Wallet.createRandom().address,
       ethers.Wallet.createRandom().address,
-      ethers.Wallet.createRandom().address,
+      ethers.Wallet.createRandom().address
     ]
 
     await signers[0].sendTransaction({
       to: firstReceiver,
-      value: parseEther("123.45"),
+      value: parseEther('123.45')
     })
 
     await signers[0].sendTransaction({
       to: secondReceiver,
-      value: parseEther("0.777"),
+      value: parseEther('0.777')
     })
 
     await signers[0].sendTransaction({
       to: thirdReceiver,
-      value: parseEther("1.23"),
+      value: parseEther('1.23')
     })
 
     expect(
@@ -275,13 +276,13 @@ describe("DaoViewer", () => {
         [firstReceiver, secondReceiver, thirdReceiver],
         [constants.AddressZero]
       )
-    ).to.eql([parseEther("123.45"), parseEther("0.777"), parseEther("1.23")])
+    ).to.eql([parseEther('123.45'), parseEther('0.777'), parseEther('1.23')])
   })
 
-  it("Get Hash Statuses", async () => {
+  it('Get Hash Statuses', async () => {
     signers = await ethers.getSigners()
 
-    ownerAddress = await signers[0].getAddress()
+    ownerAddress = signers[0].address
 
     token = await new Token__factory(signers[0]).deploy()
 
@@ -296,7 +297,7 @@ describe("DaoViewer", () => {
 
     daoViewer = await new DaoViewer__factory(signers[0]).deploy()
 
-    await factory.create("FIRST", "FIRST", 51, [ownerAddress], [10])
+    await factory.create('FIRST', 'FIRST', 51, [ownerAddress], [10])
 
     const dao = Dao__factory.connect(await factory.daoAt(0), signers[0])
 
@@ -304,10 +305,10 @@ describe("DaoViewer", () => {
 
     const VOTING_1 = {
       target: dao.address,
-      data: createData("changeQuorum", ["uint8"], [60]),
+      data: createData('changeQuorum', ['uint8'], [60]),
       value: 0,
       nonce: 0,
-      timestamp: timestamp1,
+      timestamp: timestamp1
     }
 
     const txHash1 = createTxHash(
@@ -321,7 +322,7 @@ describe("DaoViewer", () => {
     )
 
     expect(await daoViewer.getHashStatuses(dao.address, [txHash1])).to.eql([
-      false,
+      false
     ])
 
     await dao.execute(
@@ -334,7 +335,7 @@ describe("DaoViewer", () => {
     )
 
     expect(await daoViewer.getHashStatuses(dao.address, [txHash1])).to.eql([
-      true,
+      true
     ])
 
     const txHash2 = createTxHash(
@@ -369,10 +370,10 @@ describe("DaoViewer", () => {
     ).to.eql([true, true])
   })
 
-  it("Get DAO Configuration, Invest Info and Private Offers", async () => {
+  it('Get DAO Configuration, Invest Info and Private Offers', async () => {
     signers = await ethers.getSigners()
 
-    ownerAddress = await signers[0].getAddress()
+    ownerAddress = signers[0].address
 
     token = await new Token__factory(signers[0]).deploy()
 
@@ -392,17 +393,17 @@ describe("DaoViewer", () => {
       [],
       [],
       [],
-      [],
+      []
     ])
     expect(await daoViewer.getPrivateOffersInfo(factory.address)).to.eql([
       [],
       [],
       [],
       [],
-      [],
+      []
     ])
 
-    await factory.create("FIRST", "FIRST", 51, [ownerAddress], [10])
+    await factory.create('FIRST', 'FIRST', 51, [ownerAddress], [10])
 
     expect(
       (
@@ -422,27 +423,27 @@ describe("DaoViewer", () => {
       constants.Zero,
       constants.Zero,
       constants.Zero,
-      constants.Zero,
+      constants.Zero
     ])
 
     const investInfo = await daoViewer.getInvestInfo(factory.address)
 
     expect(investInfo[0][0].slice(0, 6)).to.eql([
       await factory.daoAt(0),
-      "FIRST",
-      "FIRST",
+      'FIRST',
+      'FIRST',
       constants.AddressZero,
-      "",
-      "",
+      '',
+      ''
     ])
 
     expect(investInfo[1][0].slice(0, 3)).to.eql([
       false,
       constants.AddressZero,
-      constants.Zero,
+      constants.Zero
     ])
 
-    expect(investInfo.slice(2)).to.eql([[""], [0], [constants.Zero]])
+    expect(investInfo.slice(2)).to.eql([[''], [0], [constants.Zero]])
 
     const privateOffersInfo = await daoViewer.getPrivateOffersInfo(
       factory.address
@@ -450,26 +451,26 @@ describe("DaoViewer", () => {
 
     expect(privateOffersInfo[0][0].slice(0, 6)).to.eql([
       await factory.daoAt(0),
-      "FIRST",
-      "FIRST",
+      'FIRST',
+      'FIRST',
       constants.AddressZero,
-      "",
-      "",
+      '',
+      ''
     ])
 
     expect(privateOffersInfo.slice(1)).to.eql([[constants.Zero], [], [], []])
 
     const timestamp = dayjs().unix()
 
-    let VOTING = {
+    const VOTING = {
       target: shop.address,
-      data: createData("createLp", ["string", "string"], ["FirstLP", "FLP"]),
+      data: createData('createLp', ['string', 'string'], ['FirstLP', 'FLP']),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
-    let txHash = createTxHash(
+    const txHash = createTxHash(
       await factory.daoAt(0),
       VOTING.target,
       VOTING.data,
@@ -479,7 +480,7 @@ describe("DaoViewer", () => {
       1337
     )
 
-    let sig = await signers[0].signMessage(txHash)
+    const sig = await signers[0].signMessage(txHash)
 
     expect(verifyMessage(txHash, sig)).to.eq(ownerAddress)
 
@@ -492,7 +493,7 @@ describe("DaoViewer", () => {
         VOTING.timestamp,
         [sig]
       )
-    ).to.emit(shop, "LpCreated")
+    ).to.emit(shop, 'LpCreated')
 
     expect(
       (
@@ -512,7 +513,7 @@ describe("DaoViewer", () => {
       constants.Zero,
       constants.Zero,
       constants.Zero,
-      constants.Zero,
+      constants.Zero
     ])
   })
 })

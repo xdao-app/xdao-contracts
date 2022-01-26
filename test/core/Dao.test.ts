@@ -1,9 +1,10 @@
-import { constants } from "@ethereum-waffle/provider/node_modules/ethers"
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { expect } from "chai"
-import dayjs from "dayjs"
-import { parseEther, verifyMessage } from "ethers/lib/utils"
-import { ethers } from "hardhat"
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { expect } from 'chai'
+import dayjs from 'dayjs'
+import { constants } from 'ethers'
+import { parseEther, verifyMessage } from 'ethers/lib/utils'
+import { ethers } from 'hardhat'
+
 import {
   Adapter__factory,
   Dao,
@@ -15,11 +16,11 @@ import {
   Shop,
   Shop__factory,
   Token,
-  Token__factory,
-} from "../../typechain"
-import { createData, createTxHash } from "../utils"
+  Token__factory
+} from '../../typechain-types'
+import { createData, createTxHash } from '../utils'
 
-describe("Dao", () => {
+describe('Dao', () => {
   let shop: Shop
 
   let factory: Factory
@@ -35,7 +36,7 @@ describe("Dao", () => {
   beforeEach(async () => {
     signers = await ethers.getSigners()
 
-    ownerAddress = await signers[0].getAddress()
+    ownerAddress = signers[0].address
 
     token = await new Token__factory(signers[0]).deploy()
 
@@ -49,11 +50,11 @@ describe("Dao", () => {
     await shop.setFactory(factory.address)
 
     const DAO_CONFIG = {
-      daoName: "EgorDAO",
-      daoSymbol: "EDAO",
+      daoName: 'EgorDAO',
+      daoSymbol: 'EDAO',
       quorum: 51,
       partners: [ownerAddress],
-      shares: [10],
+      shares: [10]
     }
 
     await factory.create(
@@ -67,21 +68,21 @@ describe("Dao", () => {
     dao = Dao__factory.connect(await factory.daoAt(0), signers[0])
   })
 
-  it("Change Quorum", async () => {
+  it('Change Quorum', async () => {
     expect(await dao.balanceOf(ownerAddress)).to.eq(10)
 
     expect(await dao.quorum()).to.eq(51)
 
-    expect(await dao.getExecutedVoting()).to.be.an("array").that.is.empty
+    expect(await dao.getExecutedVoting()).to.be.an('array').that.is.empty
 
     const timestamp = dayjs().unix()
 
     const VOTING = {
       target: dao.address,
-      data: createData("changeQuorum", ["uint8"], [60]),
+      data: createData('changeQuorum', ['uint8'], [60]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     const txHash = createTxHash(
@@ -107,19 +108,19 @@ describe("Dao", () => {
         VOTING.timestamp,
         [sig]
       )
-    ).to.emit(dao, "Executed")
+    ).to.emit(dao, 'Executed')
 
     expect(await dao.quorum()).to.eq(60)
 
     expect(await dao.getExecutedVoting()).to.have.lengthOf(1)
 
     expect(await dao.executedVotingByIndex(0)).to.have.property(
-      "target",
+      'target',
       VOTING.target
     )
 
     expect(await dao.executedVotingByIndex(0)).to.have.property(
-      "data",
+      'data',
       VOTING.data
     )
 
@@ -133,26 +134,26 @@ describe("Dao", () => {
 
     const sigs = (await dao.executedVotingByIndex(0)).sigs
 
-    expect(sigs).to.be.an("array")
+    expect(sigs).to.be.an('array')
 
     expect(verifyMessage(txHash, sigs[0])).to.eq(ownerAddress)
   })
 
-  it("Mint GT and Sign Together", async () => {
+  it('Mint GT and Sign Together', async () => {
     expect(await dao.balanceOf(ownerAddress)).to.eq(10)
 
     expect(await dao.mintable()).to.eq(true)
 
     const timestamp = dayjs().unix()
 
-    const friendAddress = await signers[1].getAddress()
+    const friendAddress = signers[1].address
 
     let VOTING = {
       target: dao.address,
-      data: createData("mint", ["address", "uint256"], [friendAddress, 10]),
+      data: createData('mint', ['address', 'uint256'], [friendAddress, 10]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     let txHash = createTxHash(
@@ -182,10 +183,10 @@ describe("Dao", () => {
 
     VOTING = {
       target: dao.address,
-      data: createData("disableMinting"),
+      data: createData('disableMinting'),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -211,7 +212,7 @@ describe("Dao", () => {
         VOTING.timestamp,
         [sigOwner]
       )
-    ).to.be.revertedWith("DAO: quorum is not reached")
+    ).to.be.revertedWith('DAO: quorum is not reached')
 
     await expect(
       dao.execute(
@@ -222,7 +223,7 @@ describe("Dao", () => {
         VOTING.timestamp,
         [sigOwner, sigOwner]
       )
-    ).to.be.revertedWith("DAO: signatures are not unique")
+    ).to.be.revertedWith('DAO: signatures are not unique')
 
     const sigFriend = await signers[1].signMessage(txHash)
 
@@ -241,10 +242,10 @@ describe("Dao", () => {
 
     VOTING = {
       target: dao.address,
-      data: createData("disableBurning"),
+      data: createData('disableBurning'),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -270,7 +271,7 @@ describe("Dao", () => {
         VOTING.timestamp,
         [sigOwner]
       )
-    ).to.be.revertedWith("DAO: quorum is not reached")
+    ).to.be.revertedWith('DAO: quorum is not reached')
 
     await expect(
       dao.execute(
@@ -281,7 +282,7 @@ describe("Dao", () => {
         VOTING.timestamp,
         [sigOwner, sigOwner]
       )
-    ).to.be.revertedWith("DAO: signatures are not unique")
+    ).to.be.revertedWith('DAO: signatures are not unique')
 
     const sigFriendDisableBurning = await signers[1].signMessage(txHash)
 
@@ -299,7 +300,7 @@ describe("Dao", () => {
     expect(await dao.burnable()).to.eq(false)
   })
 
-  it("Signature Replay Revert", async () => {
+  it('Signature Replay Revert', async () => {
     expect(await dao.balanceOf(ownerAddress)).to.eq(10)
 
     expect(await dao.quorum()).to.eq(51)
@@ -308,10 +309,10 @@ describe("Dao", () => {
 
     let VOTING = {
       target: dao.address,
-      data: createData("changeQuorum", ["uint8"], [60]),
+      data: createData('changeQuorum', ['uint8'], [60]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     let txHash = createTxHash(
@@ -348,14 +349,14 @@ describe("Dao", () => {
         VOTING.timestamp,
         [sig]
       )
-    ).to.be.revertedWith("DAO: voting already executed")
+    ).to.be.revertedWith('DAO: voting already executed')
 
     VOTING = {
       target: dao.address,
-      data: createData("changeQuorum", ["uint8"], [60]),
+      data: createData('changeQuorum', ['uint8'], [60]),
       value: 0,
       nonce: 1,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -384,38 +385,34 @@ describe("Dao", () => {
     expect(await dao.quorum()).to.eq(60)
   })
 
-  it("Revert GT Transfer and Transfer From", async () => {
-    await expect(
-      dao.transfer(await signers[1].getAddress(), 1)
-    ).to.be.revertedWith("GT: transfer is prohibited")
+  it('Revert GT Transfer and Transfer From', async () => {
+    await expect(dao.transfer(signers[1].address, 1)).to.be.revertedWith(
+      'GT: transfer is prohibited'
+    )
 
     await expect(
-      dao.transferFrom(
-        await signers[0].getAddress(),
-        await signers[1].getAddress(),
-        1
-      )
-    ).to.be.revertedWith("GT: transferFrom is prohibited")
+      dao.transferFrom(signers[0].address, signers[1].address, 1)
+    ).to.be.revertedWith('GT: transferFrom is prohibited')
   })
 
-  it("Adapter and Viewers, Burn with Mock Adapter, Remove Adapter", async () => {
+  it('Adapter and Viewers, Burn with Mock Adapter, Remove Adapter', async () => {
     const adapter = await new Adapter__factory(signers[0]).deploy()
 
     expect(await dao.numberOfAdapters()).to.eq(0)
     expect(await dao.containsAdapter(adapter.address)).to.eq(false)
-    expect(await dao.getAdapters()).to.be.an("array").that.is.empty
+    expect(await dao.getAdapters()).to.be.an('array').that.is.empty
     expect(await dao.numberOfPermitted()).to.eq(0)
     expect(await dao.containsPermitted(adapter.address)).to.eq(false)
-    expect(await dao.getPermitted()).to.be.an("array").that.is.empty
+    expect(await dao.getPermitted()).to.be.an('array').that.is.empty
 
     const timestamp = dayjs().unix()
 
     let VOTING = {
       target: dao.address,
-      data: createData("addAdapter", ["address"], [adapter.address]),
+      data: createData('addAdapter', ['address'], [adapter.address]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     let txHash = createTxHash(
@@ -450,10 +447,10 @@ describe("Dao", () => {
 
     VOTING = {
       target: shop.address,
-      data: createData("createLp", ["string", "string"], ["EgorLP", "ELP"]),
+      data: createData('createLp', ['string', 'string'], ['EgorLP', 'ELP']),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -479,7 +476,7 @@ describe("Dao", () => {
         VOTING.timestamp,
         [sig]
       )
-    ).to.emit(shop, "LpCreated")
+    ).to.emit(shop, 'LpCreated')
 
     expect(await dao.lp()).to.not.eq(constants.AddressZero)
 
@@ -490,13 +487,13 @@ describe("Dao", () => {
     VOTING = {
       target: shop.address,
       data: createData(
-        "createPrivateOffer",
-        ["address", "address", "uint256", "uint256"],
+        'createPrivateOffer',
+        ['address', 'address', 'uint256', 'uint256'],
         [ownerAddress, goldToken.address, 0, 10]
       ),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -528,10 +525,10 @@ describe("Dao", () => {
 
     VOTING = {
       target: dao.address,
-      data: createData("removeAdapter", ["address"], [adapter.address]),
+      data: createData('removeAdapter', ['address'], [adapter.address]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -559,45 +556,41 @@ describe("Dao", () => {
 
     expect(await dao.numberOfAdapters()).to.eq(0)
     expect(await dao.containsAdapter(adapter.address)).to.eq(false)
-    expect(await dao.getAdapters()).to.be.an("array").that.is.empty
+    expect(await dao.getAdapters()).to.be.an('array').that.is.empty
     expect(await dao.numberOfPermitted()).to.eq(0)
     expect(await dao.containsPermitted(adapter.address)).to.eq(false)
-    expect(await dao.getPermitted()).to.be.an("array").that.is.empty
+    expect(await dao.getPermitted()).to.be.an('array').that.is.empty
 
     await expect(
       lp.burn(0, [], [adapter.address], [constants.AddressZero])
-    ).to.be.revertedWith("DAO: this is not an adapter")
+    ).to.be.revertedWith('DAO: this is not an adapter')
   })
 
-  it("Permitted: Add, Execute Permitted and Remove", async () => {
+  it('Permitted: Add, Execute Permitted and Remove', async () => {
     expect(await dao.numberOfPermitted()).to.eq(0)
 
-    const friendAddress = await signers[1].getAddress()
+    const friendAddress = signers[1].address
 
     await signers[0].sendTransaction({
       to: dao.address,
-      value: parseEther("0.05"),
+      value: parseEther('0.05')
     })
 
     await expect(
-      dao.executePermitted(
-        await signers[2].getAddress(),
-        "0x",
-        parseEther("0.03")
-      )
-    ).to.be.revertedWith("DAO: only for permitted")
+      dao.executePermitted(signers[2].address, '0x', parseEther('0.03'))
+    ).to.be.revertedWith('DAO: only for permitted')
 
     const timestamp = dayjs().unix()
 
-    let VOTING = {
+    const VOTING = {
       target: dao.address,
-      data: createData("addPermitted", ["address"], [friendAddress]),
+      data: createData('addPermitted', ['address'], [friendAddress]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
-    let txHash = createTxHash(
+    const txHash = createTxHash(
       dao.address,
       VOTING.target,
       VOTING.data,
@@ -607,7 +600,7 @@ describe("Dao", () => {
       1337
     )
 
-    let sig = await signers[0].signMessage(txHash)
+    const sig = await signers[0].signMessage(txHash)
 
     expect(verifyMessage(txHash, sig)).to.eq(ownerAddress)
 
@@ -629,22 +622,13 @@ describe("Dao", () => {
     expect(
       await dao
         .connect(signers[1])
-        .executePermitted(
-          await signers[2].getAddress(),
-          "0x",
-          parseEther("0.03")
-        )
+        .executePermitted(signers[2].address, '0x', parseEther('0.03'))
     )
-      .to.emit(dao, "ExecutedP")
-      .withArgs(
-        await signers[2].getAddress(),
-        "0x",
-        parseEther("0.03"),
-        friendAddress
-      )
+      .to.emit(dao, 'ExecutedP')
+      .withArgs(signers[2].address, '0x', parseEther('0.03'), friendAddress)
       .to.changeEtherBalances(
         [dao, signers[2]],
-        [parseEther("-0.03"), parseEther("0.03")]
+        [parseEther('-0.03'), parseEther('0.03')]
       )
 
     expect(await dao.getExecutedPermitted()).to.lengthOf(1)
@@ -658,20 +642,20 @@ describe("Dao", () => {
         .connect(signers[1])
         .executePermitted(
           paybleFunctionContract.address,
-          createData("hello", ["uint256"], [123]),
-          parseEther("0.01")
+          createData('hello', ['uint256'], [123]),
+          parseEther('0.01')
         )
     )
-      .to.emit(dao, "ExecutedP")
+      .to.emit(dao, 'ExecutedP')
       .withArgs(
         paybleFunctionContract.address,
-        createData("hello", ["uint256"], [123]),
-        parseEther("0.01"),
+        createData('hello', ['uint256'], [123]),
+        parseEther('0.01'),
         friendAddress
       )
       .to.changeEtherBalances(
         [dao, paybleFunctionContract],
-        [parseEther("-0.01"), parseEther("0.01")]
+        [parseEther('-0.01'), parseEther('0.01')]
       )
 
     expect(
@@ -679,61 +663,41 @@ describe("Dao", () => {
         .connect(signers[1])
         .executePermitted(
           dao.address,
-          createData(
-            "addPermitted",
-            ["address"],
-            [await signers[3].getAddress()]
-          ),
+          createData('addPermitted', ['address'], [signers[3].address]),
           0
         )
     )
-      .to.emit(dao, "ExecutedP")
+      .to.emit(dao, 'ExecutedP')
       .withArgs(
         dao.address,
-        createData(
-          "addPermitted",
-          ["address"],
-          [await signers[3].getAddress()]
-        ),
+        createData('addPermitted', ['address'], [signers[3].address]),
         0,
         friendAddress
       )
 
-    expect(await dao.containsPermitted(await signers[3].getAddress())).to.eq(
-      true
-    )
+    expect(await dao.containsPermitted(signers[3].address)).to.eq(true)
 
     expect(
       await dao
         .connect(signers[1])
         .executePermitted(
           dao.address,
-          createData(
-            "removePermitted",
-            ["address"],
-            [await signers[3].getAddress()]
-          ),
+          createData('removePermitted', ['address'], [signers[3].address]),
           0
         )
     )
-      .to.emit(dao, "ExecutedP")
+      .to.emit(dao, 'ExecutedP')
       .withArgs(
         dao.address,
-        createData(
-          "removePermitted",
-          ["address"],
-          [await signers[3].getAddress()]
-        ),
+        createData('removePermitted', ['address'], [signers[3].address]),
         0,
         friendAddress
       )
 
-    expect(await dao.containsPermitted(await signers[3].getAddress())).to.eq(
-      false
-    )
+    expect(await dao.containsPermitted(signers[3].address)).to.eq(false)
   })
 
-  it("Function Call With Value", async () => {
+  it('Function Call With Value', async () => {
     const paybleFunctionContract = await new PayableFunction__factory(
       signers[0]
     ).deploy()
@@ -744,20 +708,20 @@ describe("Dao", () => {
 
     await signers[0].sendTransaction({
       to: dao.address,
-      value: parseEther("0.05"),
+      value: parseEther('0.05')
     })
 
     const timestamp = dayjs().unix()
 
-    let VOTING = {
+    const VOTING = {
       target: paybleFunctionContract.address,
-      data: createData("hello", ["uint256"], [123]),
-      value: parseEther("0.02"),
+      data: createData('hello', ['uint256'], [123]),
+      value: parseEther('0.02'),
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
-    let txHash = createTxHash(
+    const txHash = createTxHash(
       dao.address,
       VOTING.target,
       VOTING.data,
@@ -767,7 +731,7 @@ describe("Dao", () => {
       1337
     )
 
-    let sig = await signers[0].signMessage(txHash)
+    const sig = await signers[0].signMessage(txHash)
 
     expect(verifyMessage(txHash, sig)).to.eq(ownerAddress)
 
@@ -782,24 +746,24 @@ describe("Dao", () => {
       )
     ).to.changeEtherBalances(
       [dao, paybleFunctionContract],
-      [parseEther("-0.02"), parseEther("0.02")]
+      [parseEther('-0.02'), parseEther('0.02')]
     )
   })
 
-  it("DAO did not Pay for the Subscription", async () => {
+  it('DAO did not Pay for the Subscription', async () => {
     await factory.changeMonthlyCost(1)
 
     const timestamp = dayjs().unix()
 
-    let VOTING = {
+    const VOTING = {
       target: dao.address,
-      data: createData("addPermitted", ["address"], [ownerAddress]),
+      data: createData('addPermitted', ['address'], [ownerAddress]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
-    let txHash = createTxHash(
+    const txHash = createTxHash(
       dao.address,
       VOTING.target,
       VOTING.data,
@@ -809,7 +773,7 @@ describe("Dao", () => {
       1337
     )
 
-    let sig = await signers[0].signMessage(txHash)
+    const sig = await signers[0].signMessage(txHash)
 
     expect(verifyMessage(txHash, sig)).to.eq(ownerAddress)
 
@@ -822,20 +786,20 @@ describe("Dao", () => {
         VOTING.timestamp,
         [sig]
       )
-    ).to.be.revertedWith("DAO: subscription not paid")
+    ).to.be.revertedWith('DAO: subscription not paid')
   })
 
-  it("Revert Adapter Duplicates and Length Mismatch", async () => {
+  it('Revert Adapter Duplicates and Length Mismatch', async () => {
     const adapter = await new Adapter__factory(signers[0]).deploy()
 
     const timestamp = dayjs().unix()
 
     let VOTING = {
       target: dao.address,
-      data: createData("addAdapter", ["address"], [adapter.address]),
+      data: createData('addAdapter', ['address'], [adapter.address]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     let txHash = createTxHash(
@@ -863,10 +827,10 @@ describe("Dao", () => {
 
     VOTING = {
       target: shop.address,
-      data: createData("createLp", ["string", "string"], ["EgorLP", "ELP"]),
+      data: createData('createLp', ['string', 'string'], ['EgorLP', 'ELP']),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -892,7 +856,7 @@ describe("Dao", () => {
         VOTING.timestamp,
         [sig]
       )
-    ).to.emit(shop, "LpCreated")
+    ).to.emit(shop, 'LpCreated')
 
     expect(await dao.lp()).to.not.eq(constants.AddressZero)
 
@@ -903,13 +867,13 @@ describe("Dao", () => {
     VOTING = {
       target: shop.address,
       data: createData(
-        "createPrivateOffer",
-        ["address", "address", "uint256", "uint256"],
+        'createPrivateOffer',
+        ['address', 'address', 'uint256', 'uint256'],
         [ownerAddress, goldToken.address, 0, 10]
       ),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -944,7 +908,7 @@ describe("Dao", () => {
         [adapter.address, adapter.address],
         [constants.AddressZero, constants.AddressZero]
       )
-    ).to.be.revertedWith("DAO: duplicates are prohibited (adapters)")
+    ).to.be.revertedWith('DAO: duplicates are prohibited (adapters)')
 
     await expect(
       lp.burn(
@@ -953,13 +917,13 @@ describe("Dao", () => {
         [adapter.address],
         [constants.AddressZero, constants.AddressZero]
       )
-    ).to.be.revertedWith("DAO: adapters error")
+    ).to.be.revertedWith('DAO: adapters error')
   })
 
-  it("Move and Burn GT", async () => {
+  it('Move and Burn GT', async () => {
     const timestamp = dayjs().unix()
 
-    const friendAddress = await signers[1].getAddress()
+    const friendAddress = signers[1].address
 
     expect(await dao.balanceOf(ownerAddress)).to.eq(10)
 
@@ -968,13 +932,13 @@ describe("Dao", () => {
     let VOTING = {
       target: dao.address,
       data: createData(
-        "move",
-        ["address", "address", "uint256"],
+        'move',
+        ['address', 'address', 'uint256'],
         [ownerAddress, friendAddress, 10]
       ),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     let txHash = createTxHash(
@@ -1006,10 +970,10 @@ describe("Dao", () => {
 
     VOTING = {
       target: dao.address,
-      data: createData("burn", ["address", "uint256"], [friendAddress, 5]),
+      data: createData('burn', ['address', 'uint256'], [friendAddress, 5]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -1042,22 +1006,22 @@ describe("Dao", () => {
     expect(await dao.balanceOf(friendAddress)).to.eq(5)
   })
 
-  it("Send Value", async () => {
+  it('Send Value', async () => {
     await signers[0].sendTransaction({
       to: dao.address,
-      value: parseEther("0.05"),
+      value: parseEther('0.05')
     })
 
-    const friendAddress = await signers[1].getAddress()
+    const friendAddress = signers[1].address
 
     const timestamp = dayjs().unix()
 
     const VOTING = {
       target: friendAddress,
-      data: "0x",
-      value: parseEther("0.01"),
+      data: '0x',
+      value: parseEther('0.01'),
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     const txHash = createTxHash(
@@ -1085,7 +1049,7 @@ describe("Dao", () => {
       )
     ).to.changeEtherBalances(
       [dao, signers[1]],
-      [parseEther("-0.01"), parseEther("0.01")]
+      [parseEther('-0.01'), parseEther('0.01')]
     )
   })
 })

@@ -1,7 +1,8 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { BigNumberish } from "ethers"
-import { AbiCoder, arrayify, id, keccak256 } from "ethers/lib/utils"
-import { Dao__factory } from "../typechain"
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { BigNumberish } from 'ethers'
+import { AbiCoder, arrayify, id, keccak256 } from 'ethers/lib/utils'
+
+import { Dao__factory } from '../typechain-types'
 
 // createData('transfer', ['address','uint256'], ['0x000000000000000000000000000000000000dEaD', '100'])
 // ===
@@ -10,11 +11,11 @@ import { Dao__factory } from "../typechain"
 export const createData = (
   func: string,
   argtypes: string[] = [],
-  args: any[] = []
+  args: unknown[] = []
 ): string =>
   argtypes.length === 0 && args.length === 0
     ? id(`${func}()`).slice(0, 10) + new AbiCoder().encode([], []).slice(2)
-    : id(`${func}(${argtypes.join(",")})`).slice(0, 10) +
+    : id(`${func}(${argtypes.join(',')})`).slice(0, 10) +
       new AbiCoder().encode(argtypes, args).slice(2)
 
 export const createTxHash = (
@@ -30,13 +31,13 @@ export const createTxHash = (
     keccak256(
       new AbiCoder().encode(
         [
-          "address",
-          "address",
-          "bytes",
-          "uint256",
-          "uint256",
-          "uint256",
-          "uint256",
+          'address',
+          'address',
+          'bytes',
+          'uint256',
+          'uint256',
+          'uint256',
+          'uint256'
         ],
         [daoAddress, target, data, value, nonce, timestamp, chainId]
       )
@@ -58,7 +59,7 @@ async function execute(
   await daoContract.execute(targetAddress, data, value, nonce, timestamp, [
     await signer.signMessage(
       createTxHash(daoAddress, targetAddress, data, 0, 0, timestamp, 1337)
-    ),
+    )
   ])
 }
 
@@ -67,7 +68,7 @@ export const executeTx = async (
   targetAddress: string,
   func: string,
   argtypes: string[] = [],
-  args: any[] = [],
+  args: unknown[] = [],
   value: BigNumberish = 0,
   signer: SignerWithAddress
 ) => {

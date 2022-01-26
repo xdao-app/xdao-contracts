@@ -1,22 +1,19 @@
-import { expect } from "chai"
-import { parseEther } from "ethers/lib/utils"
-import { ethers } from "hardhat"
-import { NamedToken__factory } from "../../typechain"
+import { expect } from 'chai'
+import { parseEther } from 'ethers/lib/utils'
+import { ethers } from 'hardhat'
 
-describe("NamedToken", () => {
-  it("Successful Deploy", async () => {
+import { NamedToken__factory } from '../../typechain-types'
+
+describe('NamedToken', () => {
+  it('Successful Deploy', async () => {
     const namedToken = await new NamedToken__factory(
       (
         await ethers.getSigners()
       )[0]
-    ).deploy("Egor", "EGOR")
+    ).deploy('Egor', 'EGOR')
 
-    expect(
-      await namedToken.balanceOf(
-        await (await ethers.getSigners())[0].getAddress()
-      )
-    )
+    expect(await namedToken.balanceOf((await ethers.getSigners())[0].address))
       .to.eq(await namedToken.totalSupply())
-      .to.eq(parseEther("100"))
+      .to.eq(parseEther('100'))
   })
 })

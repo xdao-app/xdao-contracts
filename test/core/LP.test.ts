@@ -1,9 +1,10 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers"
-import { expect } from "chai"
-import dayjs from "dayjs"
-import { constants } from "ethers"
-import { parseEther, verifyMessage } from "ethers/lib/utils"
-import { ethers } from "hardhat"
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { expect } from 'chai'
+import dayjs from 'dayjs'
+import { constants } from 'ethers'
+import { parseEther, verifyMessage } from 'ethers/lib/utils'
+import { ethers } from 'hardhat'
+
 import {
   Dao,
   Dao__factory,
@@ -14,11 +15,11 @@ import {
   Shop,
   Shop__factory,
   Token,
-  Token__factory,
-} from "../../typechain"
-import { createData, createTxHash } from "../utils"
+  Token__factory
+} from '../../typechain-types'
+import { createData, createTxHash } from '../utils'
 
-describe("LP", () => {
+describe('LP', () => {
   let shop: Shop
 
   let factory: Factory
@@ -36,7 +37,7 @@ describe("LP", () => {
   beforeEach(async () => {
     signers = await ethers.getSigners()
 
-    ownerAddress = await signers[0].getAddress()
+    ownerAddress = signers[0].address
 
     token = await new Token__factory(signers[0]).deploy()
 
@@ -50,11 +51,11 @@ describe("LP", () => {
     await shop.setFactory(factory.address)
 
     const DAO_CONFIG = {
-      daoName: "EgorDAO",
-      daoSymbol: "EDAO",
+      daoName: 'EgorDAO',
+      daoSymbol: 'EDAO',
       quorum: 51,
       partners: [ownerAddress],
-      shares: [10],
+      shares: [10]
     }
 
     await factory.create(
@@ -68,17 +69,17 @@ describe("LP", () => {
     dao = Dao__factory.connect(await factory.daoAt(0), signers[0])
   })
 
-  it("Deploy LP, Change Mintable/Burnable and Freeze Them", async () => {
+  it('Deploy LP, Change Mintable/Burnable and Freeze Them', async () => {
     expect(await dao.lp()).to.eq(constants.AddressZero)
 
     const timestamp = dayjs().unix()
 
     let VOTING = {
       target: shop.address,
-      data: createData("createLp", ["string", "string"], ["EgorLP", "ELP"]),
+      data: createData('createLp', ['string', 'string'], ['EgorLP', 'ELP']),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     let txHash = createTxHash(
@@ -104,7 +105,7 @@ describe("LP", () => {
         VOTING.timestamp,
         [sig]
       )
-    ).to.emit(shop, "LpCreated")
+    ).to.emit(shop, 'LpCreated')
 
     expect(await dao.lp()).to.not.eq(constants.AddressZero)
 
@@ -122,26 +123,26 @@ describe("LP", () => {
         lp.mintableStatusFrozen(),
         lp.burnableStatusFrozen(),
         lp.dao(),
-        lp.shop(),
+        lp.shop()
       ])
     ).to.deep.eq([
-      "EgorLP",
-      "ELP",
+      'EgorLP',
+      'ELP',
       constants.Zero,
       true,
       true,
       false,
       false,
       dao.address,
-      shop.address,
+      shop.address
     ])
 
     VOTING = {
       target: lp.address,
-      data: createData("changeMintable", ["bool"], [false]),
+      data: createData('changeMintable', ['bool'], [false]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -173,10 +174,10 @@ describe("LP", () => {
 
     VOTING = {
       target: lp.address,
-      data: createData("changeBurnable", ["bool"], [false]),
+      data: createData('changeBurnable', ['bool'], [false]),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -208,10 +209,10 @@ describe("LP", () => {
 
     VOTING = {
       target: lp.address,
-      data: createData("freezeMintingStatus"),
+      data: createData('freezeMintingStatus'),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -243,10 +244,10 @@ describe("LP", () => {
 
     VOTING = {
       target: lp.address,
-      data: createData("freezeBurningStatus"),
+      data: createData('freezeBurningStatus'),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -277,19 +278,19 @@ describe("LP", () => {
     expect(await lp.burnableStatusFrozen()).to.eq(true)
   })
 
-  it("Mint LP with Shop, then Burn", async () => {
+  it('Mint LP with Shop, then Burn', async () => {
     expect(await dao.lp()).to.eq(constants.AddressZero)
 
     const timestamp = dayjs().unix()
 
-    const friendAddress = await signers[1].getAddress()
+    const friendAddress = signers[1].address
 
     let VOTING = {
       target: shop.address,
-      data: createData("createLp", ["string", "string"], ["EgorLP", "ELP"]),
+      data: createData('createLp', ['string', 'string'], ['EgorLP', 'ELP']),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     let txHash = createTxHash(
@@ -315,7 +316,7 @@ describe("LP", () => {
         VOTING.timestamp,
         [sig]
       )
-    ).to.emit(shop, "LpCreated")
+    ).to.emit(shop, 'LpCreated')
 
     lp = LP__factory.connect(await dao.lp(), signers[0])
 
@@ -325,13 +326,13 @@ describe("LP", () => {
     VOTING = {
       target: shop.address,
       data: createData(
-        "createPrivateOffer",
-        ["address", "address", "uint256", "uint256"],
+        'createPrivateOffer',
+        ['address', 'address', 'uint256', 'uint256'],
         [friendAddress, goldToken.address, 25, 15]
       ),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -373,7 +374,7 @@ describe("LP", () => {
           lp.balanceOf(dao.address),
           goldToken.balanceOf(ownerAddress),
           goldToken.balanceOf(friendAddress),
-          goldToken.balanceOf(dao.address),
+          goldToken.balanceOf(dao.address)
         ])
       ).map(Number)
     ).to.deep.eq([0, 15, 0, 1e20 - 30, 5, 25])
@@ -381,13 +382,13 @@ describe("LP", () => {
     VOTING = {
       target: shop.address,
       data: createData(
-        "createPrivateOffer",
-        ["address", "address", "uint256", "uint256"],
+        'createPrivateOffer',
+        ['address', 'address', 'uint256', 'uint256'],
         [ownerAddress, silverToken.address, 15, 10]
       ),
       value: 0,
       nonce: 0,
-      timestamp,
+      timestamp
     }
 
     txHash = createTxHash(
@@ -430,18 +431,18 @@ describe("LP", () => {
           goldToken.balanceOf(dao.address),
           silverToken.balanceOf(ownerAddress),
           silverToken.balanceOf(friendAddress),
-          silverToken.balanceOf(dao.address),
+          silverToken.balanceOf(dao.address)
         ])
       ).map(Number)
     ).to.deep.eq([10, 15, 0, 1e20 - 30, 5, 25, 1e20 - 15, 0, 15])
 
     await signers[0].sendTransaction({
       to: dao.address,
-      value: parseEther("0.05"),
+      value: parseEther('0.05')
     })
 
     expect(await ethers.provider.getBalance(dao.address)).to.eq(
-      parseEther("0.05")
+      parseEther('0.05')
     )
 
     await expect(
@@ -451,8 +452,8 @@ describe("LP", () => {
     ).to.changeEtherBalances(
       [dao, signers[1]],
       [
-        parseEther("-0.05").mul("15").div("25"),
-        parseEther("0.05").mul("15").div("25"),
+        parseEther('-0.05').mul('15').div('25'),
+        parseEther('0.05').mul('15').div('25')
       ]
     )
 
@@ -467,7 +468,7 @@ describe("LP", () => {
           goldToken.balanceOf(dao.address),
           silverToken.balanceOf(ownerAddress),
           silverToken.balanceOf(friendAddress),
-          silverToken.balanceOf(dao.address),
+          silverToken.balanceOf(dao.address)
         ])
       ).map(Number)
     ).to.deep.eq([
@@ -479,7 +480,7 @@ describe("LP", () => {
       (25 * 10) / 25,
       1e20 - 15,
       (15 * 15) / 25,
-      (15 * 10) / 25,
+      (15 * 10) / 25
     ])
   })
 })

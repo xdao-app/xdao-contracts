@@ -9,6 +9,7 @@ coverage.json
 coverage
 
 typechain
+typechain-types
 
 .DS_Store
 .env
