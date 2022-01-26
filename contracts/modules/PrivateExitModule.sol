@@ -6,25 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "../interfaces/ILP.sol";
-
-interface IDaoPrivateExitModule {
-    function lp() external view returns (address);
-
-    function executePermitted(
-        address _target,
-        bytes calldata _data,
-        uint256 _value
-    ) external returns (bool);
-}
-
-interface ILPPrivateExitModule {
-    function burn(
-        uint256 _amount,
-        address[] memory _tokens,
-        address[] memory _adapters,
-        address[] memory _pools
-    ) external returns (bool);
-}
+import "../interfaces/IDao.sol";
 
 contract PrivateExitModule is ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -112,7 +94,7 @@ contract PrivateExitModule is ReentrancyGuard {
             "PrivateExitModule: Invalid Recipient"
         );
 
-        IDaoPrivateExitModule dao = IDaoPrivateExitModule(_daoAddress);
+        IDao dao = IDao(_daoAddress);
 
         address lpAddress = dao.lp();
 
@@ -141,7 +123,7 @@ contract PrivateExitModule is ReentrancyGuard {
 
         address[] memory emptyAddressArray = new address[](0);
 
-        ILPPrivateExitModule(lpAddress).burn(
+        ILP(lpAddress).burn(
             offer.lpAmount,
             emptyAddressArray,
             emptyAddressArray,

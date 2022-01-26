@@ -29,4 +29,10 @@ interface IDao {
     function numberOfPermitted() external view returns (uint256);
 
     function numberOfAdapters() external view returns (uint256);
+
+    function executePermitted(
+        address _target,
+        bytes calldata _data,
+        uint256 _value
+    ) external returns (bool);
 }
