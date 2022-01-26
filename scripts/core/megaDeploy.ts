@@ -9,6 +9,7 @@ import { createData, createTxHash } from '../../test/utils'
 import {
   Dao__factory,
   DaoViewer__factory,
+  DividendsModule__factory,
   Factory__factory,
   NamedToken__factory,
   PrivateExitModule__factory,
@@ -230,6 +231,12 @@ async function main() {
   ).deploy()
 
   console.log('PrivateExitModule:', privateExitModule.address)
+
+  const dividendsModule = await new DividendsModule__factory(
+    signers[0]
+  ).deploy()
+
+  console.log('DividendsModule:', dividendsModule.address)
 
   console.log('Done')
 }

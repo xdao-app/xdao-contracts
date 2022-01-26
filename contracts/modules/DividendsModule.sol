@@ -66,4 +66,6 @@ contract DividendsModule is ReentrancyGuard {
             IERC20(token).safeTransfer(msg.sender, balance);
         }
     }
+
+    receive() external payable {}
 }
