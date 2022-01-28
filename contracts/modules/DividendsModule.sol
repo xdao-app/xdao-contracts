@@ -15,15 +15,7 @@ contract DividendsModule is ReentrancyGuard {
     function distributeEther(
         address[] calldata recipients,
         uint256[] calldata values
-    ) external {
-        uint256 total = 0;
-
-        for (uint256 i = 0; i < recipients.length; i++) {
-            total += values[i];
-        }
-
-        IDao(msg.sender).executePermitted(address(this), "", total);
-
+    ) external payable {
         for (uint256 i = 0; i < recipients.length; i++) {
             payable(recipients[i]).sendValue(values[i]);
         }
@@ -46,15 +38,7 @@ contract DividendsModule is ReentrancyGuard {
             total += values[i];
         }
 
-        IDao(msg.sender).executePermitted(
-            token,
-            abi.encodeWithSignature(
-                "transfer(address,uint256)",
-                address(this),
-                total
-            ),
-            0
-        );
+        IERC20(token).safeTransferFrom(msg.sender, address(this), total);
 
         for (uint256 i = 0; i < recipients.length; i++) {
             IERC20(token).safeTransfer(recipients[i], values[i]);
