@@ -91,6 +91,12 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
+    optimism: {
+      url: `https://mainnet.optimism.io`,
+      chainId: 10,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
     rinkeby: {
       url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/eth/rinkeby`,
       chainId: 4,
