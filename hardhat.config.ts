@@ -97,6 +97,12 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
+    boba: {
+      url: `https://mainnet.boba.network`,
+      chainId: 288,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
     rinkeby: {
       url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/eth/rinkeby`,
       chainId: 4,
