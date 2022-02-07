@@ -1,5 +1,6 @@
 import { expect } from 'chai'
 import { constants } from 'ethers'
+import { formatEther, parseEther } from 'ethers/lib/utils'
 import { ethers } from 'hardhat'
 
 import {
@@ -19,34 +20,37 @@ describe('Dividends', () => {
       constants.AddressZero
     )
 
-    await factory.create('', '', 51, [signer.address], [1])
+    await factory.create('', '', 51, [signer.address], [parseEther('1')])
 
     const dao = Dao__factory.connect(await factory.daoAt(0), signer)
 
     const dividends = await new DividendsModule__factory(signer).deploy()
 
+    await signer.sendTransaction({
+      to: dao.address,
+      value: parseEther('12')
+    })
+
     await executeTx(
       dao.address,
-      dao.address,
-      'addPermitted',
-      ['address'],
-      [dividends.address],
-      0,
+      dividends.address,
+      'distributeEther',
+      ['address[]', 'uint256[]'],
+      [[signer.address], [parseEther('1')]],
+      parseEther('7.5'),
       signer
     )
 
-    expect(await dao.containsPermitted(dividends.address)).to.eq(true)
-
     const usdc = await new Token__factory(signer).deploy()
 
-    await usdc.transfer(dao.address, 1)
+    await usdc.transfer(dao.address, parseEther('1.2'))
 
     await executeTx(
       dao.address,
       usdc.address,
       'approve',
       ['address', 'uint256'],
-      [dividends.address, 1],
+      [dividends.address, parseEther('1.2')],
       0,
       signer
     )
@@ -56,7 +60,7 @@ describe('Dividends', () => {
       dividends.address,
       'distributeTokens',
       ['address', 'address[]', 'uint256[]'],
-      [usdc.address, [signer.address], [1]],
+      [usdc.address, [signer.address], [parseEther('1.2')]],
       0,
       signer
     )

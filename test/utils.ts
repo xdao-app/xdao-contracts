@@ -58,7 +58,15 @@ async function execute(
 
   await daoContract.execute(targetAddress, data, value, nonce, timestamp, [
     await signer.signMessage(
-      createTxHash(daoAddress, targetAddress, data, 0, 0, timestamp, 1337)
+      createTxHash(
+        daoAddress,
+        targetAddress,
+        data,
+        value,
+        nonce,
+        timestamp,
+        1337
+      )
     )
   ])
 }
