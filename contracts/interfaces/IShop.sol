@@ -30,4 +30,6 @@ interface IShop {
         external
         view
         returns (uint256);
+
+    function buyPrivateOffer(address _dao, uint256 _id) external returns (bool);
 }
