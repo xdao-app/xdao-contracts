@@ -9,16 +9,9 @@ import 'hardhat-tracer'
 import 'solidity-coverage'
 
 import * as dotenv from 'dotenv'
-import { HardhatUserConfig, task } from 'hardhat/config'
+import { HardhatUserConfig } from 'hardhat/config'
+
 dotenv.config()
-
-task('accounts', 'Prints the list of accounts', async (_, hre) => {
-  const accounts = await hre.ethers.getSigners()
-
-  for (const account of accounts) {
-    console.log(account.address)
-  }
-})
 
 const vanityKey =
   '960fb429377453d0a1aec14807813d01f989cc5504270e514bf2a9f7d843253a'
@@ -31,8 +24,14 @@ const config: HardhatUserConfig = {
     },
 
     mainnet: {
-      url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/eth/mainnet`,
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 1,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
+    bsc: {
+      url: `https://bsc-dataseed.binance.org/`,
+      chainId: 56,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
@@ -42,21 +41,15 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
-    bsc: {
-      url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/bsc/mainnet`,
-      chainId: 56,
-      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
-    },
-
-    fantom: {
+    opera: {
       url: `https://rpc.ftm.tools/`,
       chainId: 250,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
-    avalanche: {
-      url: `https://api.avax.network/ext/bc/C/rpc`,
-      chainId: 43114,
+    optimisticEthereum: {
+      url: `https://mainnet.optimism.io`,
+      chainId: 10,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
@@ -65,6 +58,12 @@ const config: HardhatUserConfig = {
       chainId: 137,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
       gasPrice: 40000000000
+    },
+
+    avalanche: {
+      url: `https://api.avax.network/ext/bc/C/rpc`,
+      chainId: 43114,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
     celo: {
@@ -91,12 +90,6 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
-    optimism: {
-      url: `https://mainnet.optimism.io`,
-      chainId: 10,
-      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
-    },
-
     boba: {
       url: `https://mainnet.boba.network`,
       chainId: 288,
@@ -104,7 +97,7 @@ const config: HardhatUserConfig = {
     },
 
     rinkeby: {
-      url: `https://speedy-nodes-nyc.moralis.io/${process.env.MORALIS_KEY}/eth/rinkeby`,
+      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     }
@@ -121,7 +114,16 @@ const config: HardhatUserConfig = {
   },
 
   etherscan: {
-    apiKey: process.env.ETHERSCAN_KEY
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_KEY,
+      rinkeby: process.env.ETHERSCAN_KEY,
+      bsc: process.env.BSCSCAN_KEY,
+      heco: process.env.HECOINFO_KEY,
+      opera: process.env.FTMSCAN_KEY,
+      optimisticEthereum: process.env.OPTIMISTIC_ETHERSCAN_KEY,
+      polygon: process.env.POLYGONSCAN_KEY,
+      avalanche: process.env.SNOWTRACE_KEY
+    }
   },
 
   contractSizer: {
