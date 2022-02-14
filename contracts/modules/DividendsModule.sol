@@ -43,12 +43,6 @@ contract DividendsModule is ReentrancyGuard {
         for (uint256 i = 0; i < recipients.length; i++) {
             IERC20(token).safeTransfer(recipients[i], values[i]);
         }
-
-        uint256 balance = IERC20(token).balanceOf(address(this));
-
-        if (balance > 0) {
-            IERC20(token).safeTransfer(msg.sender, balance);
-        }
     }
 
     receive() external payable {}
