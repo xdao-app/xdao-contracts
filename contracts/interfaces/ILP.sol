@@ -6,8 +6,6 @@ interface ILP {
 
     function symbol() external view returns (string memory);
 
-    function burn(address _to, uint256 _amount) external returns (bool);
-
     function mint(address _to, uint256 _amount) external returns (bool);
 
     function mintable() external view returns (bool);
@@ -17,4 +15,11 @@ interface ILP {
     function mintableStatusFrozen() external view returns (bool);
 
     function burnableStatusFrozen() external view returns (bool);
+
+    function burn(
+        uint256 _amount,
+        address[] memory _tokens,
+        address[] memory _adapters,
+        address[] memory _pools
+    ) external returns (bool);
 }
