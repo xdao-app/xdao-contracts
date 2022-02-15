@@ -9,6 +9,7 @@ describe('Launchpad', () => {
     const [signer] = await ethers.getSigners()
 
     const launchpad = await new LaunchpadModule__factory(signer).deploy(
+      constants.AddressZero,
       constants.AddressZero
     )
 

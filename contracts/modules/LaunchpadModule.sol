@@ -14,6 +14,7 @@ contract LaunchpadModule {
     using SafeERC20 for IERC20;
 
     IShop public shop;
+    IPrivateExitModule public privateExitModule;
 
     struct Sale {
         address currency;
@@ -35,8 +36,9 @@ contract LaunchpadModule {
     mapping(address => mapping(uint256 => mapping(address => bool)))
         public bought;
 
-    constructor(IShop _shop) {
+    constructor(IShop _shop, IPrivateExitModule _privateExitModule) {
         shop = _shop;
+        privateExitModule = _privateExitModule;
     }
 
     function initSale(
@@ -54,9 +56,7 @@ contract LaunchpadModule {
             "LaunchpadModule: Invalid Whitelist Length"
         );
 
-        uint256 saleIndex = saleIndexes[msg.sender];
-
-        Sale storage sale = sales[msg.sender][saleIndex];
+        Sale storage sale = sales[msg.sender][saleIndexes[msg.sender]];
 
         sale.currency = _currency;
         sale.rate = _rate;
@@ -85,7 +85,27 @@ contract LaunchpadModule {
         return true;
     }
 
-    // TODO Close Sale
+    function closeSale(bool _withPrivateExit, uint256 _id)
+        external
+        returns (bool)
+    {
+        saleIndexes[msg.sender]++;
+
+        if (_withPrivateExit) {
+            IERC20 lp = IERC20(IDao(msg.sender).lp());
+
+            require(
+                lp.approve(
+                    address(privateExitModule),
+                    lp.balanceOf(address(this))
+                )
+            );
+
+            require(privateExitModule.privateExit(msg.sender, _id));
+        }
+
+        return true;
+    }
 
     function buy(address _dao) external returns (bool) {
         uint256 saleIndex = saleIndexes[_dao];
