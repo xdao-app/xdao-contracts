@@ -1,11 +1,9 @@
-import { BigNumberish } from '@ethersproject/bignumber'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import dayjs from 'dayjs'
 import * as dotenv from 'dotenv'
 import { parseEther } from 'ethers/lib/utils'
 import { ethers, network } from 'hardhat'
 
-import { createData, createTxHash, executeTx } from '../../test/utils'
+import { executeTx } from '../../test/utils'
 import {
   Dao__factory,
   DaoViewer__factory,

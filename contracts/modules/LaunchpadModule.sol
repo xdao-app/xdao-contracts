@@ -20,7 +20,7 @@ contract LaunchpadModule {
         address currency;
         uint256 rate;
         bool isFinite;
-        bool isLimitedTotalAmount;
+        bool isLimitedTotalSaleAmount;
         bool isWhitelist;
         bool isAllocation;
         uint256 endTimestamp;
@@ -61,7 +61,7 @@ contract LaunchpadModule {
         sale.currency = _currency;
         sale.rate = _rate;
         sale.isFinite = _limits[0];
-        sale.isLimitedTotalAmount = _limits[1];
+        sale.isLimitedTotalSaleAmount = _limits[1];
         sale.isWhitelist = _limits[2];
         sale.isAllocation = _limits[3];
         sale.endTimestamp = _endTimestamp;
@@ -137,7 +137,7 @@ contract LaunchpadModule {
         address currency;
         uint256 rate;
         bool isFinite;
-        bool isLimitedTotalAmount;
+        bool isLimitedTotalSaleAmount;
         bool isWhitelist;
         bool isAllocation;
         uint256 endTimestamp;
@@ -166,7 +166,7 @@ contract LaunchpadModule {
                 currency: sale.currency,
                 rate: sale.rate,
                 isFinite: sale.isFinite,
-                isLimitedTotalAmount: sale.isLimitedTotalAmount,
+                isLimitedTotalSaleAmount: sale.isLimitedTotalSaleAmount,
                 isWhitelist: sale.isWhitelist,
                 isAllocation: sale.isAllocation,
                 endTimestamp: sale.endTimestamp,
