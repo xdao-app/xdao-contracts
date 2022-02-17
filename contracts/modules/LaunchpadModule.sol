@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import "../interfaces/IFactory.sol";
 import "../interfaces/IShop.sol";
 import "../interfaces/IDao.sol";
 import "../interfaces/IPrivateExitModule.sol";
@@ -13,6 +14,7 @@ contract LaunchpadModule {
     using EnumerableSet for EnumerableSet.AddressSet;
     using SafeERC20 for IERC20;
 
+    IFactory public factory;
     IShop public shop;
     IPrivateExitModule public privateExitModule;
 
@@ -36,9 +38,24 @@ contract LaunchpadModule {
     mapping(address => mapping(uint256 => mapping(address => bool)))
         public bought;
 
-    constructor(IShop _shop, IPrivateExitModule _privateExitModule) {
+    mapping(address => mapping(uint256 => uint256)) public totalBought;
+
+    constructor(
+        IFactory _factory,
+        IShop _shop,
+        IPrivateExitModule _privateExitModule
+    ) {
+        factory = _factory;
         shop = _shop;
         privateExitModule = _privateExitModule;
+    }
+
+    modifier onlyDao() {
+        require(
+            factory.containsDao(msg.sender),
+            "LaunchpadModule: only for DAOs"
+        );
+        _;
     }
 
     function initSale(
@@ -50,7 +67,7 @@ contract LaunchpadModule {
         address[] calldata _addWhitelist,
         uint256[] calldata _allocations,
         address[] calldata _removeWhitelist
-    ) external returns (bool) {
+    ) external onlyDao returns (bool) {
         require(
             _addWhitelist.length == _allocations.length,
             "LaunchpadModule: Invalid Whitelist Length"
@@ -87,6 +104,7 @@ contract LaunchpadModule {
 
     function closeSale(bool _withPrivateExit, uint256 _id)
         external
+        onlyDao
         returns (bool)
     {
         saleIndexes[msg.sender]++;
@@ -107,27 +125,62 @@ contract LaunchpadModule {
         return true;
     }
 
-    function buy(address _dao) external returns (bool) {
+    function buy(address _dao, uint256 _currencyAmount)
+        external
+        returns (bool)
+    {
         uint256 saleIndex = saleIndexes[_dao];
 
         require(
             !bought[_dao][saleIndex][msg.sender],
-            "LaunchpadModule: Already Bought"
+            "LaunchpadModule: already bought"
         );
+
+        Sale storage sale = sales[_dao][saleIndex];
+
+        if (sale.isFinite) {
+            require(
+                block.timestamp <= sale.endTimestamp,
+                "LaunchpadModule: sale is over"
+            );
+        }
+
+        uint256 currencyAmount;
+
+        if (sale.isAllocation) {
+            currencyAmount = sale.allocations[msg.sender];
+        } else {
+            currencyAmount = _currencyAmount;
+        }
+
+        if (sale.isLimitedTotalSaleAmount) {
+            require(
+                totalBought[_dao][saleIndex] + currencyAmount <=
+                    sale.totalSaleAmount,
+                "LaunchpadModule: limit exceeded"
+            );
+        }
+
+        if (sale.isWhitelist) {
+            require(
+                sale.whitelist.contains(msg.sender),
+                "LaunchpadModule: the buyer is not whitelisted"
+            );
+        }
 
         bought[_dao][saleIndex][msg.sender] = true;
 
-        Sale storage sale = sales[_dao][saleIndex];
+        totalBought[_dao][saleIndex] += currencyAmount;
 
         IERC20(sale.currency).safeTransferFrom(
             msg.sender,
             _dao,
-            sale.allocations[msg.sender]
+            currencyAmount
         );
 
         IERC20(IDao(_dao).lp()).safeTransfer(
             msg.sender,
-            (sale.allocations[msg.sender] * 1 ether) / sale.rate
+            (currencyAmount * 1 ether) / sale.rate
         );
 
         return true;
