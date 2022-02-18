@@ -202,6 +202,7 @@ async function main() {
   console.log('DividendsModule:', dividendsModule.address)
 
   const launchpadModule = await new LaunchpadModule__factory(signer).deploy(
+    factory.address,
     shop.address,
     privateExitModule.address
   )
