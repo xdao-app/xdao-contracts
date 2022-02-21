@@ -102,25 +102,20 @@ contract LaunchpadModule {
         return true;
     }
 
-    function closeSale(bool _withPrivateExit, uint256 _id)
-        external
-        onlyDao
-        returns (bool)
-    {
+    function closeSale() external onlyDao returns (bool) {
         saleIndexes[msg.sender]++;
 
-        if (_withPrivateExit) {
-            IERC20 lp = IERC20(IDao(msg.sender).lp());
+        return true;
+    }
 
-            require(
-                lp.approve(
-                    address(privateExitModule),
-                    lp.balanceOf(address(this))
-                )
-            );
+    function burnLp(uint256 _id) external onlyDao returns (bool) {
+        IERC20 lp = IERC20(IDao(msg.sender).lp());
 
-            require(privateExitModule.privateExit(msg.sender, _id));
-        }
+        require(
+            lp.approve(address(privateExitModule), lp.balanceOf(address(this)))
+        );
+
+        require(privateExitModule.privateExit(msg.sender, _id));
 
         return true;
     }
