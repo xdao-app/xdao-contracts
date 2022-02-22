@@ -10,6 +10,7 @@ describe('Launchpad', () => {
 
     const launchpad = await new LaunchpadModule__factory(signer).deploy(
       constants.AddressZero,
+      constants.AddressZero,
       constants.AddressZero
     )
 

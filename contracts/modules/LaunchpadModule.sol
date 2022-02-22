@@ -40,6 +40,29 @@ contract LaunchpadModule {
 
     mapping(address => mapping(uint256 => uint256)) public totalBought;
 
+    event InitSale(
+        address indexed daoAddress,
+        uint256 indexed saleId,
+        address currency,
+        uint256 rate,
+        bool[4] limits,
+        uint256 _endTimestamp,
+        uint256 _totalSaleAmount,
+        address[] _addWhitelist,
+        uint256[] _allocations,
+        address[] _removeWhitelist
+    );
+
+    event CloseSale(address indexed daoAddress, uint256 indexed saleId);
+
+    event Buy(
+        address indexed daoAddress,
+        uint256 indexed saleId,
+        address indexed buyer,
+        uint256 currencyAmount,
+        uint256 lpAmount
+    );
+
     constructor(
         IFactory _factory,
         IShop _shop,
@@ -93,6 +116,19 @@ contract LaunchpadModule {
             sale.whitelist.remove(_removeWhitelist[i]);
         }
 
+        emit InitSale(
+            msg.sender,
+            saleIndexes[msg.sender],
+            _currency,
+            _rate,
+            _limits,
+            _endTimestamp,
+            _totalSaleAmount,
+            _addWhitelist,
+            _allocations,
+            _removeWhitelist
+        );
+
         return true;
     }
 
@@ -104,6 +140,8 @@ contract LaunchpadModule {
 
     function closeSale() external onlyDao returns (bool) {
         saleIndexes[msg.sender]++;
+
+        emit CloseSale(msg.sender, saleIndexes[msg.sender] - 1);
 
         return true;
     }
@@ -173,10 +211,11 @@ contract LaunchpadModule {
             currencyAmount
         );
 
-        IERC20(IDao(_dao).lp()).safeTransfer(
-            msg.sender,
-            (currencyAmount * 1 ether) / sale.rate
-        );
+        uint256 lpAmount = (currencyAmount * 1 ether) / sale.rate;
+
+        IERC20(IDao(_dao).lp()).safeTransfer(msg.sender, lpAmount);
+
+        emit Buy(_dao, saleIndex, msg.sender, currencyAmount, lpAmount);
 
         return true;
     }
