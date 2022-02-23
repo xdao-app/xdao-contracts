@@ -146,14 +146,16 @@ contract LaunchpadModule {
         return true;
     }
 
-    function burnLp(uint256 _id) external onlyDao returns (bool) {
-        IERC20 lp = IERC20(IDao(msg.sender).lp());
+    function burnLp(address _dao, uint256 _id) external returns (bool) {
+        require(factory.containsDao(_dao), "LaunchpadModule: only for DAOs");
+
+        IERC20 lp = IERC20(IDao(_dao).lp());
 
         require(
             lp.approve(address(privateExitModule), lp.balanceOf(address(this)))
         );
 
-        require(privateExitModule.privateExit(msg.sender, _id));
+        require(privateExitModule.privateExit(_dao, _id));
 
         return true;
     }
