@@ -96,6 +96,18 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
+    moonbeam: {
+      url: 'https://rpc.api.moonbeam.network',
+      chainId: 1284,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
+    moonriver: {
+      url: 'https://rpc.api.moonriver.moonbeam.network',
+      chainId: 1285,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
@@ -122,7 +134,9 @@ const config: HardhatUserConfig = {
       opera: process.env.FTMSCAN_KEY,
       optimisticEthereum: process.env.OPTIMISTIC_ETHERSCAN_KEY,
       polygon: process.env.POLYGONSCAN_KEY,
-      avalanche: process.env.SNOWTRACE_KEY
+      avalanche: process.env.SNOWTRACE_KEY,
+      moonbeam: process.env.MOONBEAM_KEY,
+      moonriver: process.env.MOONRIVER_KEY
     }
   },
 
