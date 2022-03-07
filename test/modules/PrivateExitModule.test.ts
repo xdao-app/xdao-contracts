@@ -117,7 +117,7 @@ describe('PrivateExitModule', () => {
 
     await expect(
       privateExitModule.connect(signers[1]).privateExit(dao.address, 0)
-    ).to.be.revertedWith('ERC20: transfer amount exceeds balance')
+    ).to.be.revertedWith('ERC20: insufficient allowance')
 
     expect(await lp.totalSupply()).to.eql(constants.Zero)
 
@@ -139,7 +139,7 @@ describe('PrivateExitModule', () => {
 
     await expect(
       privateExitModule.connect(signers[1]).privateExit(dao.address, 0)
-    ).to.be.revertedWith('ERC20: transfer amount exceeds allowance')
+    ).to.be.revertedWith('ERC20: insufficient allowance')
 
     await lp
       .connect(signers[1])
