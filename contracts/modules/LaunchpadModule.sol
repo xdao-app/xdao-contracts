@@ -64,6 +64,11 @@ contract LaunchpadModule is OwnableUpgradeable {
         uint256 lpAmount
     );
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {
+        __Ownable_init();
+    }
+
     function initialize() public initializer {
         __Ownable_init();
     }
