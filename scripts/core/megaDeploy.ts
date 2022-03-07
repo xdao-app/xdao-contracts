@@ -1,16 +1,16 @@
-import { BigNumberish } from '@ethersproject/bignumber'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import dayjs from 'dayjs'
 import * as dotenv from 'dotenv'
 import { parseEther } from 'ethers/lib/utils'
-import { ethers, network } from 'hardhat'
+import { ethers, network, upgrades } from 'hardhat'
 
-import { createData, createTxHash } from '../../test/utils'
+import { executeTx } from '../../test/utils'
 import {
   Dao__factory,
   DaoViewer__factory,
   DividendsModule__factory,
   Factory__factory,
+  LaunchpadModule,
+  LaunchpadModule__factory,
   NamedToken__factory,
   PrivateExitModule__factory,
   Shop__factory,
@@ -19,44 +19,20 @@ import {
 
 dotenv.config()
 
-async function execute(
-  daoAddress: string,
-  targetAddress: string,
-  data: string,
-  value: BigNumberish,
-  nonce: BigNumberish,
-  signer: SignerWithAddress
-) {
-  const timestamp = dayjs().unix()
-
-  await Dao__factory.connect(daoAddress, signer).execute(
-    targetAddress,
-    data,
-    value,
-    nonce,
-    timestamp,
-    [
-      await signer.signMessage(
-        createTxHash(daoAddress, targetAddress, data, 0, 0, timestamp, 1337)
-      )
-    ]
-  )
-}
-
 async function main() {
   await network.provider.request({ method: 'hardhat_reset', params: [] })
 
-  const signers = await ethers.getSigners()
+  const [signer, friend] = await ethers.getSigners()
 
-  const shop = await new Shop__factory(signers[0]).deploy()
+  const shop = await new Shop__factory(signer).deploy()
 
   console.log('Shop:', shop.address)
 
-  const xdaoToken = await new XDAO__factory(signers[0]).deploy()
+  const xdaoToken = await new XDAO__factory(signer).deploy()
 
   console.log('XDAO Token:', xdaoToken.address)
 
-  const factory = await new Factory__factory(signers[0]).deploy(
+  const factory = await new Factory__factory(signer).deploy(
     shop.address,
     xdaoToken.address
   )
@@ -69,7 +45,7 @@ async function main() {
 
   console.log('Success: Setting Factory Address to Shop')
 
-  const daoViewer = await new DaoViewer__factory(signers[0]).deploy()
+  const daoViewer = await new DaoViewer__factory(signer).deploy()
 
   console.log('Dao Viewer:', daoViewer.address)
 
@@ -77,7 +53,7 @@ async function main() {
     'AloneDAO',
     'ALONE',
     51,
-    [signers[0].address],
+    [signer.address],
     [parseEther('10')]
   )
 
@@ -85,7 +61,7 @@ async function main() {
     'FriendsDAO',
     'FRIENDS',
     51,
-    [signers[0].address, signers[1].address],
+    [signer.address, friend.address],
     [parseEther('10'), parseEther('10')]
   )
 
@@ -93,7 +69,7 @@ async function main() {
     'WithLP',
     'WITHLP',
     51,
-    [signers[0].address],
+    [signer.address],
     [parseEther('10')]
   )
 
@@ -101,7 +77,7 @@ async function main() {
     'PrivateDAO',
     'PRIVATE',
     51,
-    [signers[0].address],
+    [signer.address],
     [parseEther('10')]
   )
 
@@ -109,7 +85,7 @@ async function main() {
     'PublicDAO',
     'PUBLIC',
     51,
-    [signers[0].address],
+    [signer.address],
     [parseEther('10')]
   )
 
@@ -117,126 +93,154 @@ async function main() {
     'ComplexDAO',
     'COMPLEX',
     51,
-    [signers[0].address],
+    [signer.address],
     [parseEther('10')]
   )
 
   console.log('Deployed 6 DAOs')
 
-  const usdc = await new NamedToken__factory(signers[0]).deploy('USDC', 'USDC')
+  const usdc = await new NamedToken__factory(signer).deploy('USDC', 'USDC')
 
   console.log('USDC Token:', usdc.address)
 
-  const btc = await new NamedToken__factory(signers[0]).deploy('BTC', 'BTC')
+  const btc = await new NamedToken__factory(signer).deploy('BTC', 'BTC')
 
   console.log('BTC Token:', btc.address)
 
-  const sol = await new NamedToken__factory(signers[0]).deploy('SOL', 'SOL')
+  const sol = await new NamedToken__factory(signer).deploy('SOL', 'SOL')
 
   console.log('SOL Token:', sol.address)
 
   for (const i of [2, 3, 4, 5]) {
-    await execute(
+    await executeTx(
       await factory.daoAt(i),
       shop.address,
-      createData('createLp', ['string', 'string'], ['LP', 'LP']),
+      'createLp',
+      ['string', 'string'],
+      ['LP', 'LP'],
       0,
-      0,
-      signers[0]
+      signer
     )
   }
 
   for (const i of [3, 5]) {
-    await execute(
+    await executeTx(
       await factory.daoAt(i),
       shop.address,
-      createData(
-        'createPrivateOffer',
-        ['address', 'address', 'uint256', 'uint256'],
-        [
-          signers[0].address,
-          [usdc, btc, sol][i - 3].address,
-          parseEther('1.6'),
-          parseEther('3.5')
-        ]
-      ),
+      'createPrivateOffer',
+      ['address', 'address', 'uint256', 'uint256'],
+      [
+        signer.address,
+        [usdc, btc, sol][i - 3].address,
+        parseEther('1.6'),
+        parseEther('3.5')
+      ],
       0,
-      0,
-      signers[0]
+      signer
     )
 
-    await execute(
+    await executeTx(
       await factory.daoAt(i),
       shop.address,
-      createData(
-        'createPrivateOffer',
-        ['address', 'address', 'uint256', 'uint256'],
-        [
-          signers[1].address,
-          [usdc, btc, sol][5 - i].address,
-          parseEther('1.7'),
-          parseEther('3.9')
-        ]
-      ),
+      'createPrivateOffer',
+      ['address', 'address', 'uint256', 'uint256'],
+      [
+        friend.address,
+        [usdc, btc, sol][5 - i].address,
+        parseEther('1.7'),
+        parseEther('3.9')
+      ],
       0,
-      0,
-      signers[0]
+      signer
     )
 
-    await execute(
+    await executeTx(
       await factory.daoAt(i),
       shop.address,
-      createData(
-        'createPrivateOffer',
-        ['address', 'address', 'uint256', 'uint256'],
-        [
-          signers[0].address,
-          [usdc, btc, sol][5 - i].address,
-          parseEther('2.6'),
-          parseEther('4.2')
-        ]
-      ),
+      'createPrivateOffer',
+      ['address', 'address', 'uint256', 'uint256'],
+      [
+        signer.address,
+        [usdc, btc, sol][5 - i].address,
+        parseEther('2.6'),
+        parseEther('4.2')
+      ],
       0,
-      0,
-      signers[0]
+      signer
     )
 
-    await execute(
+    await executeTx(
       await factory.daoAt(i),
       shop.address,
-      createData('disablePrivateOffer', ['uint256'], [2]),
+      'disablePrivateOffer',
+      ['uint256'],
+      [2],
       0,
-      0,
-      signers[0]
+      signer
     )
   }
 
   for (const i of [4, 5]) {
-    await execute(
+    await executeTx(
       await factory.daoAt(i),
       shop.address,
-      createData(
-        'initPublicOffer',
-        ['bool', 'address', 'uint256'],
-        ['true', [usdc, btc, sol][i - 4].address, parseEther('1.5')]
-      ),
+      'initPublicOffer',
+      ['bool', 'address', 'uint256'],
+      ['true', [usdc, btc, sol][i - 4].address, parseEther('1.5')],
       0,
-      0,
-      signers[0]
+      signer
     )
   }
 
   const privateExitModule = await new PrivateExitModule__factory(
-    signers[0]
+    signer
   ).deploy()
 
   console.log('PrivateExitModule:', privateExitModule.address)
 
-  const dividendsModule = await new DividendsModule__factory(
-    signers[0]
-  ).deploy()
+  const dividendsModule = await new DividendsModule__factory(signer).deploy()
 
   console.log('DividendsModule:', dividendsModule.address)
+
+  const launchpadModule = (await upgrades.deployProxy(
+    await ethers.getContractFactory('LaunchpadModule')
+  )) as LaunchpadModule
+
+  await launchpadModule.setCoreAddresses(
+    factory.address,
+    shop.address,
+    privateExitModule.address
+  )
+
+  console.log('LaunchpadModule:', launchpadModule.address)
+
+  await executeTx(
+    await factory.daoAt(5),
+    launchpadModule.address,
+    'initSale',
+    [
+      'address',
+      'uint256',
+      'bool[4]',
+      'uint256',
+      'uint256',
+      'address[]',
+      'uint256[]',
+      'address[]'
+    ],
+    [
+      usdc.address,
+      parseEther('2'),
+      [true, true, true, true],
+      dayjs().add(3, 'day').unix(),
+      parseEther('12'),
+      [signer.address, friend.address],
+      [parseEther('1.4'), parseEther('2.7')],
+      []
+    ],
+    0,
+    signer
+  )
 
   console.log('Done')
 }

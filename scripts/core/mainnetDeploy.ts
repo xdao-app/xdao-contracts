@@ -23,7 +23,7 @@ async function main() {
 
   await xdao.deployed()
 
-  console.log('XDAO:', shop.address)
+  console.log('XDAO:', xdao.address)
 
   const factory = await new Factory__factory(signers[0]).deploy(
     shop.address,

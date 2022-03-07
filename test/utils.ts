@@ -54,21 +54,26 @@ async function execute(
 ) {
   const timestamp = Math.floor(Date.now() / 1000)
 
-  const daoContract = Dao__factory.connect(daoAddress, signer)
-
-  await daoContract.execute(targetAddress, data, value, nonce, timestamp, [
-    await signer.signMessage(
-      createTxHash(
-        daoAddress,
-        targetAddress,
-        data,
-        value,
-        nonce,
-        timestamp,
-        1337
+  await Dao__factory.connect(daoAddress, signer).execute(
+    targetAddress,
+    data,
+    value,
+    nonce,
+    timestamp,
+    [
+      await signer.signMessage(
+        createTxHash(
+          daoAddress,
+          targetAddress,
+          data,
+          value,
+          nonce,
+          timestamp,
+          1337
+        )
       )
-    )
-  ])
+    ]
+  )
 }
 
 export const executeTx = async (
@@ -88,4 +93,14 @@ export const executeTx = async (
     0,
     signer
   )
+}
+
+export const executeTxRaw = async (
+  daoAddress: string,
+  targetAddress: string,
+  data: string,
+  value: BigNumberish = 0,
+  signer: SignerWithAddress
+) => {
+  await execute(daoAddress, targetAddress, data, value, 0, signer)
 }
