@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.6;
 
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "../interfaces/IFactory.sol";
 import "../interfaces/IShop.sol";
 import "../interfaces/IDao.sol";
 import "../interfaces/IPrivateExitModule.sol";
 
-contract LaunchpadModule {
-    using EnumerableSet for EnumerableSet.AddressSet;
-    using SafeERC20 for IERC20;
+contract LaunchpadModule is OwnableUpgradeable {
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IFactory public factory;
     IShop public shop;
@@ -27,7 +28,7 @@ contract LaunchpadModule {
         bool isAllocation;
         uint256 endTimestamp;
         uint256 totalSaleAmount;
-        EnumerableSet.AddressSet whitelist;
+        EnumerableSetUpgradeable.AddressSet whitelist;
         mapping(address => uint256) allocations;
     }
 
@@ -63,11 +64,15 @@ contract LaunchpadModule {
         uint256 lpAmount
     );
 
-    constructor(
+    function initialize() public initializer {
+        __Ownable_init();
+    }
+
+    function setCoreAddresses(
         IFactory _factory,
         IShop _shop,
         IPrivateExitModule _privateExitModule
-    ) {
+    ) external onlyOwner {
         factory = _factory;
         shop = _shop;
         privateExitModule = _privateExitModule;
@@ -90,7 +95,7 @@ contract LaunchpadModule {
         address[] calldata _addWhitelist,
         uint256[] calldata _allocations,
         address[] calldata _removeWhitelist
-    ) external onlyDao returns (bool) {
+    ) external onlyDao {
         require(
             _addWhitelist.length == _allocations.length,
             "LaunchpadModule: Invalid Whitelist Length"
@@ -128,42 +133,31 @@ contract LaunchpadModule {
             _allocations,
             _removeWhitelist
         );
-
-        return true;
     }
 
-    function fillLpBalance(address _dao, uint256 _id) external returns (bool) {
+    function fillLpBalance(address _dao, uint256 _id) external {
         require(shop.buyPrivateOffer(_dao, _id));
-
-        return true;
     }
 
-    function closeSale() external onlyDao returns (bool) {
+    function closeSale() external onlyDao {
         saleIndexes[msg.sender]++;
 
         emit CloseSale(msg.sender, saleIndexes[msg.sender] - 1);
-
-        return true;
     }
 
-    function burnLp(address _dao, uint256 _id) external returns (bool) {
+    function burnLp(address _dao, uint256 _id) external {
         require(factory.containsDao(_dao), "LaunchpadModule: only for DAOs");
 
-        IERC20 lp = IERC20(IDao(_dao).lp());
+        IERC20Upgradeable lp = IERC20Upgradeable(IDao(_dao).lp());
 
         require(
             lp.approve(address(privateExitModule), lp.balanceOf(address(this)))
         );
 
         require(privateExitModule.privateExit(_dao, _id));
-
-        return true;
     }
 
-    function buy(address _dao, uint256 _currencyAmount)
-        external
-        returns (bool)
-    {
+    function buy(address _dao, uint256 _currencyAmount) external {
         uint256 saleIndex = saleIndexes[_dao];
 
         require(
@@ -207,7 +201,7 @@ contract LaunchpadModule {
 
         totalBought[_dao][saleIndex] += currencyAmount;
 
-        IERC20(sale.currency).safeTransferFrom(
+        IERC20Upgradeable(sale.currency).safeTransferFrom(
             msg.sender,
             _dao,
             currencyAmount
@@ -215,11 +209,9 @@ contract LaunchpadModule {
 
         uint256 lpAmount = (currencyAmount * 1 ether) / sale.rate;
 
-        IERC20(IDao(_dao).lp()).safeTransfer(msg.sender, lpAmount);
+        IERC20Upgradeable(IDao(_dao).lp()).safeTransfer(msg.sender, lpAmount);
 
         emit Buy(_dao, saleIndex, msg.sender, currencyAmount, lpAmount);
-
-        return true;
     }
 
     struct SaleInfo {
