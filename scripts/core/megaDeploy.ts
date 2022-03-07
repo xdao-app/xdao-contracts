@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import * as dotenv from 'dotenv'
 import { parseEther } from 'ethers/lib/utils'
-import { ethers, network } from 'hardhat'
+import { ethers, network, upgrades } from 'hardhat'
 
 import { executeTx } from '../../test/utils'
 import {
@@ -9,6 +9,7 @@ import {
   DaoViewer__factory,
   DividendsModule__factory,
   Factory__factory,
+  LaunchpadModule,
   LaunchpadModule__factory,
   NamedToken__factory,
   PrivateExitModule__factory,
@@ -201,18 +202,20 @@ async function main() {
 
   console.log('DividendsModule:', dividendsModule.address)
 
-  const launchpadModule = await new LaunchpadModule__factory(signer).deploy(
+  const launchpadModule = (await upgrades.deployProxy(
+    await ethers.getContractFactory('LaunchpadModule')
+  )) as LaunchpadModule
+
+  await launchpadModule.setCoreAddresses(
     factory.address,
     shop.address,
     privateExitModule.address
   )
 
-  const dao = Dao__factory.connect(await factory.daoAt(5), signer)
-
   console.log('LaunchpadModule:', launchpadModule.address)
 
   await executeTx(
-    dao.address,
+    await factory.daoAt(5),
     launchpadModule.address,
     'initSale',
     [
