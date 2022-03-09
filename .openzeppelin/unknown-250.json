@@ -1,0 +1,246 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x41185246595EAdE95ec0acF9aDF6417fE7a94F39",
+    "txHash": "0x36ce0d4931afd19679a63de4563cfc9f44435ad9cca53a9b10423186e3c1ace6"
+  },
+  "proxies": [
+    {
+      "address": "0x9601A4378683b129A8efcE035e83222b819D639d",
+      "txHash": "0x483b43ba43e43beab6ff2d272241ad9b363ea62fc434803db3ebb9451f027e3f",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "faa97b2aad036699b4d2b9b244a6e9e2cf63b2577e9bd642d3d63bd71e75e2bc": {
+      "address": "0xc20146148cCFFCC035cEA2Fb8b17D74Fbc7DB38C",
+      "txHash": "0x0f040a9388a24f59e4d2476af7c252fef086b527e46ab09d4cdd7eee7354f7b2",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "factory",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IFactory)1502",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:18"
+          },
+          {
+            "label": "shop",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_contract(IShop)1569",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:19"
+          },
+          {
+            "label": "privateExitModule",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(IPrivateExitModule)1514",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:20"
+          },
+          {
+            "label": "sales",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Sale)1622_storage))",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:35"
+          },
+          {
+            "label": "saleIndexes",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:37"
+          },
+          {
+            "label": "bought",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_bool)))",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:39"
+          },
+          {
+            "label": "totalBought",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:42"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_contract(IFactory)1502": {
+            "label": "contract IFactory"
+          },
+          "t_contract(IPrivateExitModule)1514": {
+            "label": "contract IPrivateExitModule"
+          },
+          "t_contract(IShop)1569": {
+            "label": "contract IShop"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_bool)))": {
+            "label": "mapping(address => mapping(uint256 => mapping(address => bool)))"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Sale)1622_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct LaunchpadModule.Sale))"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
+            "label": "mapping(address => mapping(uint256 => uint256))"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
+            "label": "mapping(uint256 => mapping(address => bool))"
+          },
+          "t_mapping(t_uint256,t_struct(Sale)1622_storage)": {
+            "label": "mapping(uint256 => struct LaunchpadModule.Sale)"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)"
+          },
+          "t_struct(AddressSet)1096_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)795_storage"
+              }
+            ]
+          },
+          "t_struct(Sale)1622_storage": {
+            "label": "struct LaunchpadModule.Sale",
+            "members": [
+              {
+                "label": "currency",
+                "type": "t_address"
+              },
+              {
+                "label": "rate",
+                "type": "t_uint256"
+              },
+              {
+                "label": "isFinite",
+                "type": "t_bool"
+              },
+              {
+                "label": "isLimitedTotalSaleAmount",
+                "type": "t_bool"
+              },
+              {
+                "label": "isWhitelist",
+                "type": "t_bool"
+              },
+              {
+                "label": "isAllocation",
+                "type": "t_bool"
+              },
+              {
+                "label": "endTimestamp",
+                "type": "t_uint256"
+              },
+              {
+                "label": "totalSaleAmount",
+                "type": "t_uint256"
+              },
+              {
+                "label": "whitelist",
+                "type": "t_struct(AddressSet)1096_storage"
+              },
+              {
+                "label": "allocations",
+                "type": "t_mapping(t_address,t_uint256)"
+              }
+            ]
+          },
+          "t_struct(Set)795_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          }
+        }
+      }
+    }
+  }
+}
