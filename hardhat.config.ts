@@ -109,6 +109,18 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
+    astar: {
+      url: 'https://rpc.astar.network:8545',
+      chainId: 592,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
+    shiden: {
+      url: 'https://evm.shiden.astar.network',
+      chainId: 336,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
