@@ -149,7 +149,8 @@ const config: HardhatUserConfig = {
       polygon: process.env.POLYGONSCAN_KEY,
       avalanche: process.env.SNOWTRACE_KEY,
       moonbeam: process.env.MOONBEAM_KEY,
-      moonriver: process.env.MOONRIVER_KEY
+      moonriver: process.env.MOONRIVER_KEY,
+      aurora: process.env.AURORA_KEY
     }
   },
 
