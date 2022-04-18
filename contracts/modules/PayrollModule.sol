@@ -13,7 +13,9 @@ contract PayrollModule is Initializable {
     IFactory public factory;
 
     struct Payroll {
+        bool isActive;
         address recipient;
+        uint256 payrollStartTimestamp;
         uint256 activeUntilTimestamp;
         address currency;
         uint256 amountPerSecond;
@@ -32,10 +34,10 @@ contract PayrollModule is Initializable {
         uint256 indexed payrollId,
         address indexed daoAddress,
         address indexed recipient,
+        uint256 payrollStartTimestamp,
         uint256 activeUntilTimestamp,
         address currency,
-        uint256 amountPerSecond,
-        uint256 lastClaimTimestamp
+        uint256 amountPerSecond
     );
 
     event ClaimPayroll(
@@ -43,7 +45,8 @@ contract PayrollModule is Initializable {
         address indexed daoAddress,
         address indexed recipient,
         address currency,
-        uint256 amount
+        uint256 amount,
+        uint256 lastClaimTimestamp
     );
 
     event ChangePayrollAmount(uint256 indexed payrollId, uint256 amount);
@@ -60,33 +63,35 @@ contract PayrollModule is Initializable {
 
     function initPayroll(
         address _recipient,
+        uint256 _payrollStartTimestamp,
         uint256 _activeUntilTimestamp,
         address _currency,
-        uint256 _amountPerSecond,
-        uint256 _lastClaimTimestamp
+        uint256 _amountPerSecond
     ) external onlyDao {
         payrolls[msg.sender][numberOfPayrolls[msg.sender]] = Payroll({
+            isActive: true,
             recipient: _recipient,
+            payrollStartTimestamp: _payrollStartTimestamp,
             activeUntilTimestamp: _activeUntilTimestamp,
             currency: _currency,
             amountPerSecond: _amountPerSecond,
-            lastClaimTimestamp: _lastClaimTimestamp
+            lastClaimTimestamp: _payrollStartTimestamp
         });
 
         emit InitPayroll(
             numberOfPayrolls[msg.sender],
             msg.sender,
             _recipient,
+            _payrollStartTimestamp,
             _activeUntilTimestamp,
             _currency,
-            _amountPerSecond,
-            _lastClaimTimestamp
+            _amountPerSecond
         );
 
         numberOfPayrolls[msg.sender]++;
     }
 
-    function claimPayroll(address _dao, uint256 _payrollId) public {
+    function claimPayroll(address _dao, uint256 _payrollId) external {
         require(factory.containsDao(_dao), "PayrollModule: only for DAOs");
 
         Payroll storage payroll = payrolls[_dao][_payrollId];
@@ -97,7 +102,7 @@ contract PayrollModule is Initializable {
         );
 
         require(
-            payroll.activeUntilTimestamp >= payroll.lastClaimTimestamp,
+            payroll.activeUntilTimestamp > payroll.lastClaimTimestamp,
             "PayrollModule: Payroll already claimed"
         );
 
@@ -122,7 +127,8 @@ contract PayrollModule is Initializable {
             _dao,
             payroll.recipient,
             payroll.currency,
-            amount
+            amount,
+            nextLastClaimTimestamp
         );
     }
 
@@ -130,9 +136,9 @@ contract PayrollModule is Initializable {
         external
         onlyDao
     {
-        claimPayroll(msg.sender, _payrollId);
-
         Payroll storage payroll = payrolls[msg.sender][_payrollId];
+
+        require(payroll.isActive, "PayrollModule: Payroll is not active");
 
         payroll.amountPerSecond = _amount;
 
@@ -142,9 +148,13 @@ contract PayrollModule is Initializable {
     function dismiss(uint256 _payrollId) external onlyDao {
         Payroll storage payroll = payrolls[msg.sender][_payrollId];
 
-        payroll.activeUntilTimestamp = block.timestamp;
+        require(payroll.isActive, "PayrollModule: Payroll is not active");
 
-        claimPayroll(msg.sender, _payrollId);
+        payroll.activeUntilTimestamp = payroll.activeUntilTimestamp >
+            block.timestamp
+            ? block.timestamp
+            : payroll.activeUntilTimestamp;
+        payroll.isActive = false;
 
         emit Dismiss(_payrollId);
     }

@@ -15,15 +15,17 @@ import {
 import { executeTx } from '../utils'
 
 describe('PayrollModule', () => {
-  it('Init payroll', async () => {
+  it('Full cycle', async () => {
     const [signer] = await ethers.getSigners()
     const timestampBase = dayjs()
     const timestampLimit = timestampBase.add(100, 'year').unix()
     const timestampInitialClaim = timestampBase.unix()
+    const timestampTwelveHoursLater = timestampBase.add(12, 'hour').unix()
     const timestampOneDayLater = timestampBase.add(1, 'day').unix()
-    const timestampTwoDaysLater = timestampBase.add(2, 'day').unix()
-    const timestampThreeDaysLater = timestampBase.add(3, 'day').unix()
-    const timestampFourDaysLater = timestampBase.add(4, 'day').unix()
+    const timestampOneDayTwelveHoursLater = timestampBase
+      .add(1, 'day')
+      .add(12, 'hour')
+      .unix()
 
     const amountPerSecondCurrent = parseEther('0.0001')
     const amountPerSecondNew = parseEther('0.00011')
@@ -80,10 +82,10 @@ describe('PayrollModule', () => {
     expect(
       payrollModule.initPayroll(
         employee,
+        timestampInitialClaim,
         timestampLimit,
         usdc.address,
-        amountPerSecondCurrent,
-        timestampInitialClaim
+        amountPerSecondCurrent
       )
     ).to.be.revertedWith('PayrollModule: only for DAOs')
 
@@ -91,13 +93,13 @@ describe('PayrollModule', () => {
       dao.address,
       payrollModule.address,
       'initPayroll',
-      ['address', 'uint256', 'address', 'uint256', 'uint256'],
+      ['address', 'uint256', 'uint256', 'address', 'uint256'],
       [
         employee,
+        timestampInitialClaim,
         timestampLimit,
         usdc.address,
-        amountPerSecondCurrent,
-        timestampInitialClaim
+        amountPerSecondCurrent
       ],
       0,
       signer
@@ -112,17 +114,18 @@ describe('PayrollModule', () => {
     ).amountPerSecond
 
     describe('Actions', async () => {
-      const daoBalanceAfterFirstPay = parseEther('100').sub(parseEther('8.64'))
+      const daoBalanceAfterFirstPay = parseEther('100').sub(parseEther('4.32'))
       const daoBalanceAfterSecondPay = daoBalanceAfterFirstPay.sub(
-        parseEther('8.64')
+        parseEther('4.32')
       )
 
       it('First Paying', async () => {
         await network.provider.send('evm_setNextBlockTimestamp', [
-          timestampOneDayLater
+          timestampTwelveHoursLater
         ])
 
-        await payrollModule.claimPayroll(dao.address, 0)
+        await expect(payrollModule.claimPayroll(dao.address, 0)).not.to.be
+          .reverted
 
         expect(
           await Promise.all([
@@ -132,7 +135,7 @@ describe('PayrollModule', () => {
         ).to.eql([
           daoBalanceAfterFirstPay,
           (await payrollModule.payrolls(dao.address, 0)).amountPerSecond.mul(
-            timestampOneDayLater - timestampInitialClaim
+            timestampTwelveHoursLater - timestampInitialClaim
           )
         ])
       })
@@ -143,7 +146,22 @@ describe('PayrollModule', () => {
         ).to.eq(amountPerSecondCurrent)
 
         await network.provider.send('evm_setNextBlockTimestamp', [
-          timestampTwoDaysLater
+          timestampOneDayLater
+        ])
+
+        await expect(payrollModule.claimPayroll(dao.address, 0)).not.to.be
+          .reverted
+
+        expect(
+          await Promise.all([
+            usdc.balanceOf(dao.address),
+            usdc.balanceOf(employee)
+          ])
+        ).to.eql([
+          daoBalanceAfterSecondPay,
+          amountPerSecondBlockchainBeforeChange.mul(
+            timestampOneDayLater - timestampInitialClaim
+          )
         ])
 
         await executeTx(
@@ -157,25 +175,13 @@ describe('PayrollModule', () => {
         )
 
         expect(
-          await Promise.all([
-            usdc.balanceOf(dao.address),
-            usdc.balanceOf(employee)
-          ])
-        ).to.eql([
-          daoBalanceAfterSecondPay,
-          amountPerSecondBlockchainBeforeChange.mul(
-            timestampTwoDaysLater - timestampInitialClaim
-          )
-        ])
-
-        expect(
           (await payrollModule.payrolls(dao.address, 0)).amountPerSecond
         ).to.eq(amountPerSecondNew)
       })
 
       it('Third Paying after Change payroll amount', async () => {
         await network.provider.send('evm_setNextBlockTimestamp', [
-          timestampThreeDaysLater
+          timestampOneDayTwelveHoursLater
         ])
 
         await executeTx(
@@ -194,23 +200,76 @@ describe('PayrollModule', () => {
             usdc.balanceOf(employee)
           ])
         ).to.eql([
-          daoBalanceAfterSecondPay.sub(parseEther('9.504')),
+          daoBalanceAfterSecondPay,
+          amountPerSecondBlockchainBeforeChange.mul(
+            timestampOneDayLater - timestampInitialClaim
+          )
+        ])
+      })
+
+      it('First Attempt to Pay after Dismissal', async () => {
+        await expect(payrollModule.claimPayroll(dao.address, 0)).not.to.be
+          .reverted
+
+        expect(
+          await Promise.all([
+            usdc.balanceOf(dao.address),
+            usdc.balanceOf(employee)
+          ])
+        ).to.eql([
+          daoBalanceAfterSecondPay.sub(parseEther('4.752')),
           amountPerSecondBlockchainBeforeChange
-            .mul(timestampTwoDaysLater - timestampInitialClaim)
+            .mul(timestampOneDayLater - timestampInitialClaim)
             .add(
               (
                 await payrollModule.payrolls(dao.address, 0)
               ).amountPerSecond.mul(
-                timestampThreeDaysLater - timestampTwoDaysLater
+                timestampOneDayTwelveHoursLater - timestampOneDayLater
               )
             )
         ])
       })
 
-      it('Attempt to Pay after Dismissal', async () => {
+      it('Second Attempt to Pay after Dismissal', async () => {
         await network.provider.send('evm_setNextBlockTimestamp', [
-          timestampFourDaysLater
+          timestampBase.add(2, 'day').unix()
         ])
+
+        await expect(
+          payrollModule.claimPayroll(dao.address, 0)
+        ).to.be.revertedWith('PayrollModule: Payroll already claimed')
+      })
+
+      it('Get Payrolls info', async () => {
+        const daoPayrolls = (
+          await payrollModule.getDaoPayrolls(dao.address)
+        ).map(
+          ({
+            recipient,
+            payrollStartTimestamp,
+            activeUntilTimestamp,
+            currency,
+            amountPerSecond,
+            lastClaimTimestamp
+          }) => ({
+            recipient,
+            payrollStartTimestamp,
+            activeUntilTimestamp,
+            currency,
+            amountPerSecond,
+            lastClaimTimestamp
+          })
+        )
+
+        expect(daoPayrolls.length).to.eq(1)
+        expect(daoPayrolls[0]).to.eql({
+          recipient: employee,
+          payrollStartTimestamp: BigNumber.from(timestampInitialClaim),
+          activeUntilTimestamp: BigNumber.from(timestampOneDayTwelveHoursLater),
+          currency: usdc.address,
+          amountPerSecond: amountPerSecondNew,
+          lastClaimTimestamp: BigNumber.from(timestampOneDayTwelveHoursLater)
+        })
 
         expect(payrollModule.claimPayroll(dao.address, 0)).to.be.revertedWith(
           'PayrollModule: Payroll already claimed'
@@ -218,15 +277,35 @@ describe('PayrollModule', () => {
       })
 
       it('Change payroll amount by not DAO', async () => {
-        expect(
+        await expect(
           payrollModule.changePayrollAmount(0, amountPerSecondNew)
         ).to.be.revertedWith('PayrollModule: only for DAOs')
       })
 
       it('Dismiss by not DAO', async () => {
-        expect(payrollModule.dismiss(0)).to.be.revertedWith(
+        await expect(payrollModule.dismiss(0)).to.be.revertedWith(
           'PayrollModule: only for DAOs'
         )
+      })
+
+      it('Attempt to Dismiss again after Dismissal', async () => {
+        await network.provider.send('evm_setNextBlockTimestamp', [
+          timestampBase.add(2, 'day').add(12, 'hour').unix()
+        ])
+
+        setTimeout(async () => {
+          return await expect(
+            executeTx(
+              dao.address,
+              payrollModule.address,
+              'dismiss',
+              ['uint256'],
+              [0],
+              0,
+              signer
+            )
+          ).to.be.revertedWith('PayrollModule: Payroll is not active')
+        }, 2000)
       })
     })
   })
