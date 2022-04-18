@@ -4,6 +4,7 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol";
 
 import "../interfaces/IFactory.sol";
 
@@ -25,6 +26,9 @@ contract PayrollModule is Initializable {
     mapping(address => uint256) public numberOfPayrolls;
 
     mapping(address => mapping(uint256 => Payroll)) public payrolls;
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
 
     function initialize(IFactory _factory) public initializer {
         factory = _factory;
@@ -49,9 +53,12 @@ contract PayrollModule is Initializable {
         uint256 lastClaimTimestamp
     );
 
-    event ChangePayrollAmount(uint256 indexed payrollId, uint256 amount);
+    event ChangePayrollAmountPerSecond(
+        uint256 indexed payrollId,
+        uint256 amount
+    );
 
-    event Dismiss(uint256 indexed payrollId);
+    event DisablePayroll(uint256 indexed payrollId);
 
     modifier onlyDao() {
         require(
@@ -101,26 +108,21 @@ contract PayrollModule is Initializable {
             "PayrollModule: Unknown recipient"
         );
 
-        require(
-            payroll.activeUntilTimestamp > payroll.lastClaimTimestamp,
-            "PayrollModule: Payroll already claimed"
-        );
-
-        uint256 nextLastClaimTimestamp = block.timestamp >
+        uint256 nextLastClaimTimestamp = MathUpgradeable.min(
+            block.timestamp,
             payroll.activeUntilTimestamp
-            ? payroll.activeUntilTimestamp
-            : block.timestamp;
+        );
 
         uint256 amount = payroll.amountPerSecond *
             (nextLastClaimTimestamp - payroll.lastClaimTimestamp);
+
+        payroll.lastClaimTimestamp = nextLastClaimTimestamp;
 
         IERC20Upgradeable(payroll.currency).safeTransferFrom(
             _dao,
             payroll.recipient,
             amount
         );
-
-        payroll.lastClaimTimestamp = nextLastClaimTimestamp;
 
         emit ClaimPayroll(
             _payrollId,
@@ -132,31 +134,32 @@ contract PayrollModule is Initializable {
         );
     }
 
-    function changePayrollAmount(uint256 _payrollId, uint256 _amount)
-        external
-        onlyDao
-    {
+    function changePayrollAmountPerSecond(
+        uint256 _payrollId,
+        uint256 _amountPerSecond
+    ) external onlyDao {
         Payroll storage payroll = payrolls[msg.sender][_payrollId];
 
         require(payroll.isActive, "PayrollModule: Payroll is not active");
 
-        payroll.amountPerSecond = _amount;
+        payroll.amountPerSecond = _amountPerSecond;
 
-        emit ChangePayrollAmount(_payrollId, _amount);
+        emit ChangePayrollAmountPerSecond(_payrollId, _amountPerSecond);
     }
 
-    function dismiss(uint256 _payrollId) external onlyDao {
+    function disablePayroll(uint256 _payrollId) external onlyDao {
         Payroll storage payroll = payrolls[msg.sender][_payrollId];
 
         require(payroll.isActive, "PayrollModule: Payroll is not active");
 
-        payroll.activeUntilTimestamp = payroll.activeUntilTimestamp >
-            block.timestamp
-            ? block.timestamp
-            : payroll.activeUntilTimestamp;
+        payroll.activeUntilTimestamp = MathUpgradeable.min(
+            block.timestamp,
+            payroll.activeUntilTimestamp
+        );
+
         payroll.isActive = false;
 
-        emit Dismiss(_payrollId);
+        emit DisablePayroll(_payrollId);
     }
 
     function getDaoPayrolls(address _dao)

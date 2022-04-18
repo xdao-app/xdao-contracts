@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import dayjs from 'dayjs'
 import { BigNumber } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
-import { ethers } from 'hardhat'
+import { ethers, network } from 'hardhat'
 
 import {
   Token,
@@ -26,18 +26,22 @@ describe('XDAOTimelock', () => {
   let amounts: BigNumber[]
 
   beforeEach(async () => {
+    await network.provider.request({ method: 'hardhat_reset', params: [] })
+
     signers = await ethers.getSigners()
 
     ownerAddress = signers[0].address
 
     token = await new Token__factory(signers[0]).deploy()
 
+    const date = dayjs()
+
     timestamps = [
-      dayjs().subtract(2, 'day').unix(),
-      dayjs().subtract(1, 'day').unix(),
-      dayjs().subtract(1, 'second').unix(),
-      dayjs().add(1, 'day').unix(),
-      dayjs().add(2, 'year').unix()
+      date.subtract(2, 'day').unix(),
+      date.subtract(1, 'day').unix(),
+      date.subtract(1, 'minute').unix(),
+      date.add(1, 'day').unix(),
+      date.add(2, 'year').unix()
     ]
 
     amounts = [
