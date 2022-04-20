@@ -12,6 +12,7 @@ import {
   LaunchpadModule,
   LaunchpadModule__factory,
   NamedToken__factory,
+  PayrollModule,
   PrivateExitModule__factory,
   Shop__factory,
   XDAO__factory
@@ -241,6 +242,13 @@ async function main() {
     0,
     signer
   )
+
+  const payrollModule = (await upgrades.deployProxy(
+    await ethers.getContractFactory('PayrollModule'),
+    [factory.address]
+  )) as PayrollModule
+
+  console.log('PayrollModule:', payrollModule.address)
 
   console.log('Done')
 }

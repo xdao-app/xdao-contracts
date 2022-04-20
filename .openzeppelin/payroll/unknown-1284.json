@@ -1,0 +1,120 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x31B407eE1960d6DaC4273Bf57c5FC1CCdF53469d",
+    "txHash": "0x078546b46a0b3b4a1ac39e9331bed93e6841ae27223b04077c864982a944a552"
+  },
+  "proxies": [
+    {
+      "address": "0x7A8F181eB94594A6f47EEee5AA23ed6D8DC7563b",
+      "txHash": "0x2a36250cbc567389e75bf051a7c1204116bb14163083c74529ead7838bb94599",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "68df96438daefeac0398b2f13a0c3ecfc372b31f5193b89aa826b5046abf6eab": {
+      "address": "0xD2248bfeA32Cba6745553Aa2ff30C0D8286f6376",
+      "txHash": "0xef22758e002e923ac65faf1b03aad12c63e9251680728d32be06b0319e908ce9",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "factory",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IFactory)739",
+            "contract": "PayrollModule",
+            "src": "contracts/modules/PayrollModule.sol:14"
+          },
+          {
+            "label": "numberOfPayrolls",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "PayrollModule",
+            "src": "contracts/modules/PayrollModule.sol:26"
+          },
+          {
+            "label": "payrolls",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Payroll)770_storage))",
+            "contract": "PayrollModule",
+            "src": "contracts/modules/PayrollModule.sol:28"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_contract(IFactory)739": {
+            "label": "contract IFactory"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Payroll)770_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct PayrollModule.Payroll))"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_mapping(t_uint256,t_struct(Payroll)770_storage)": {
+            "label": "mapping(uint256 => struct PayrollModule.Payroll)"
+          },
+          "t_struct(Payroll)770_storage": {
+            "label": "struct PayrollModule.Payroll",
+            "members": [
+              {
+                "label": "isActive",
+                "type": "t_bool"
+              },
+              {
+                "label": "recipient",
+                "type": "t_address"
+              },
+              {
+                "label": "payrollStartTimestamp",
+                "type": "t_uint256"
+              },
+              {
+                "label": "activeUntilTimestamp",
+                "type": "t_uint256"
+              },
+              {
+                "label": "currency",
+                "type": "t_address"
+              },
+              {
+                "label": "amountPerSecond",
+                "type": "t_uint256"
+              },
+              {
+                "label": "lastClaimTimestamp",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          }
+        }
+      }
+    }
+  }
+}
