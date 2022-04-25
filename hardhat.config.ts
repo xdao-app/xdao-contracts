@@ -133,6 +133,12 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
+    bttc: {
+      url: 'https://rpc.bt.io',
+      chainId: 199,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
