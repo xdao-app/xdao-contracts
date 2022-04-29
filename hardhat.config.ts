@@ -139,6 +139,12 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
+    oasis: {
+      url: 'https://emerald.oasis.dev',
+      chainId: 42262,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
