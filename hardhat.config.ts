@@ -145,6 +145,12 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
+    coinex: {
+      url: 'https://rpc.coinex.net',
+      chainId: 52,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
