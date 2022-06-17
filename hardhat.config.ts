@@ -8,11 +8,9 @@ import 'hardhat-contract-sizer'
 import 'hardhat-gas-reporter'
 import 'hardhat-tracer'
 import 'solidity-coverage'
+import 'dotenv/config'
 
-import * as dotenv from 'dotenv'
 import { HardhatUserConfig } from 'hardhat/config'
-
-dotenv.config()
 
 const vanityKey =
   '960fb429377453d0a1aec14807813d01f989cc5504270e514bf2a9f7d843253a'
@@ -31,7 +29,7 @@ const config: HardhatUserConfig = {
     },
 
     bsc: {
-      url: `https://bsc-dataseed.binance.org/`,
+      url: `https://bscrpc.com`,
       chainId: 56,
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },

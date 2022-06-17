@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 import { existsSync, renameSync, unlinkSync } from 'fs'
 import { ethers, network, run, upgrades } from 'hardhat'
 
@@ -9,22 +11,23 @@ const chainId = network.config.chainId
 interface SymbiosisBridgeAgruments {
   metaRouter: string
   metaRouterGateway: string
-  feeAddress: string
-  feeRate: number
 }
 
+const feeAddress = process.env.BRIDGE_FEE_ADDRESS
+const feeRate = 50
+
 const NETWORK_ARGUMENTS: Record<number, SymbiosisBridgeAgruments> = {
+  56: {
+    metaRouter: '0x8D602356c7A6220CDE24BDfB4AB63EBFcb0a9b5d',
+    metaRouterGateway: '0xe2faC824615538C3A9ae704c75582cD1AbdD7cdf'
+  },
   137: {
     metaRouter: '0x733D33FA01424F83E9C095af3Ece80Ed6fa565F1',
-    metaRouterGateway: '0xF3273BD35e4Ad4fcd49DabDee33582b41Cbb9d77',
-    feeAddress: '',
-    feeRate: 50
+    metaRouterGateway: '0xF3273BD35e4Ad4fcd49DabDee33582b41Cbb9d77'
   },
   1337: {
     metaRouter: '0x733D33FA01424F83E9C095af3Ece80Ed6fa565F1',
-    metaRouterGateway: '0xF3273BD35e4Ad4fcd49DabDee33582b41Cbb9d77',
-    feeAddress: '',
-    feeRate: 50
+    metaRouterGateway: '0xF3273BD35e4Ad4fcd49DabDee33582b41Cbb9d77'
   }
 }
 
@@ -53,6 +56,8 @@ const main = async () => {
   console.log(`Account: ${signer.address}`)
   console.log(`Network: ${network.name}-${chainId}`)
 
+  console.log(`Bridge Fee Address: ${feeAddress}`)
+
   deleteLocalManifest()
 
   const symbiosisAddresses = NETWORK_ARGUMENTS[chainId]
@@ -62,8 +67,7 @@ const main = async () => {
     return
   }
 
-  const { metaRouter, metaRouterGateway, feeAddress, feeRate } =
-    symbiosisAddresses
+  const { metaRouter, metaRouterGateway } = symbiosisAddresses
 
   const symbiosisBridge = (await deployProxy(
     await ethers.getContractFactory('SymbiosisBridge'),
@@ -83,10 +87,12 @@ const main = async () => {
     `SymbiosisBridge implementation address: ${implementationAddress}`
   )
 
+  await new Promise((r) => setTimeout(r, 10000))
+
   try {
     await run('verify:verify', {
       address: implementationAddress,
-      contract: 'contracts/SymbiosisBridge.sol:SymbiosisBridge'
+      contract: 'contracts/modules/SymbiosisBridge.sol:SymbiosisBridge'
     })
   } catch {
     console.log(`Verification problem (SymbiosisBridge)`)
