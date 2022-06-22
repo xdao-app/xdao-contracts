@@ -25,6 +25,10 @@ const NETWORK_ARGUMENTS: Record<number, SymbiosisBridgeAgruments> = {
     metaRouter: '0x733D33FA01424F83E9C095af3Ece80Ed6fa565F1',
     metaRouterGateway: '0xF3273BD35e4Ad4fcd49DabDee33582b41Cbb9d77'
   },
+  43114: {
+    metaRouter: '0xE5E68630B5B759e6C701B70892AA8324b71e6e20',
+    metaRouterGateway: '0x25821A21C2E3455967229cADCA9b6fdd4A80a40b'
+  },
   1337: {
     metaRouter: '0x733D33FA01424F83E9C095af3Ece80Ed6fa565F1',
     metaRouterGateway: '0xF3273BD35e4Ad4fcd49DabDee33582b41Cbb9d77'
