@@ -17,6 +17,10 @@ const feeAddress = process.env.BRIDGE_FEE_ADDRESS
 const feeRate = 50
 
 const NETWORK_ARGUMENTS: Record<number, SymbiosisBridgeAgruments> = {
+  1: {
+    metaRouter: '0xB9E13785127BFfCc3dc970A55F6c7bF0844a3C15',
+    metaRouterGateway: '0x03B7551EB0162c838a10c2437b60D1f5455b9554'
+  },
   56: {
     metaRouter: '0x8D602356c7A6220CDE24BDfB4AB63EBFcb0a9b5d',
     metaRouterGateway: '0xe2faC824615538C3A9ae704c75582cD1AbdD7cdf'

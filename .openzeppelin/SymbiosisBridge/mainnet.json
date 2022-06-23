@@ -1,0 +1,83 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x7A8F181eB94594A6f47EEee5AA23ed6D8DC7563b",
+    "txHash": "0xd98201e27d64bb0d60e977952b11cb733ca282c010fbe4cbe4dd5f60c49a4ccd"
+  },
+  "proxies": [
+    {
+      "address": "0x0bB30688b39e707194F6a007FCAE63839B21CcdA",
+      "txHash": "0x7abc0193647e0bb8d8fe5b56c19073caf064dc25f00428f8318e77a50e8390be",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "3586dd01b5e7c346db3eb728445463265434a39a410fad0fd010fb010615a78e": {
+      "address": "0x31B407eE1960d6DaC4273Bf57c5FC1CCdF53469d",
+      "txHash": "0x6422cf38308483a9084056939cf53472625b874f2a2b8e8b48f17a419dead978",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "metaRouter",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "SymbiosisBridge",
+            "src": "contracts/modules/SymbiosisBridge.sol:14"
+          },
+          {
+            "label": "metaRouterGateway",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "SymbiosisBridge",
+            "src": "contracts/modules/SymbiosisBridge.sol:15"
+          },
+          {
+            "label": "feeAddress",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "SymbiosisBridge",
+            "src": "contracts/modules/SymbiosisBridge.sol:16"
+          },
+          {
+            "label": "feeRate",
+            "offset": 20,
+            "slot": "2",
+            "type": "t_uint32",
+            "contract": "SymbiosisBridge",
+            "src": "contracts/modules/SymbiosisBridge.sol:17"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_uint32": {
+            "label": "uint32"
+          }
+        }
+      }
+    }
+  }
+}
