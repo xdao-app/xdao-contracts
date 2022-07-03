@@ -55,7 +55,7 @@ contract AdvancedViewer {
 
             address daoAddress = abi.decode(r2, (address));
 
-            _daos[start - i] = daoAddress;
+            _daos[i - start] = daoAddress;
         }
 
         return _daos;
