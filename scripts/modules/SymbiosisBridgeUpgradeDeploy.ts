@@ -1,6 +1,6 @@
 import 'dotenv/config'
 
-import { existsSync, renameSync, unlinkSync } from 'fs'
+import { renameSync } from 'fs'
 import { ethers, network, run, upgrades } from 'hardhat'
 
 import { SymbiosisBridge } from '../../typechain-types'

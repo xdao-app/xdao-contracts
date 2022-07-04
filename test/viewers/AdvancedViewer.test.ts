@@ -7,7 +7,6 @@ import {
   AdvancedViewer__factory,
   Factory,
   Factory__factory,
-  LP,
   Shop,
   Shop__factory,
   Token,

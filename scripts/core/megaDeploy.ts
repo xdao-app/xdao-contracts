@@ -5,12 +5,10 @@ import { ethers, network, upgrades } from 'hardhat'
 
 import { executeTx } from '../../test/utils'
 import {
-  Dao__factory,
   DaoViewer__factory,
   DividendsModule__factory,
   Factory__factory,
   LaunchpadModule,
-  LaunchpadModule__factory,
   NamedToken__factory,
   PayrollModule,
   PrivateExitModule__factory,
