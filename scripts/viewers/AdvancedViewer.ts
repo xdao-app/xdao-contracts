@@ -23,7 +23,8 @@ async function main() {
   try {
     await run('verify:verify', {
       address: advancedViewer.address,
-      contract: 'contracts/viewers/AdvancedViewer.sol:AdvancedViewer'
+      contract: 'contracts/viewers/AdvancedViewer.sol:AdvancedViewer',
+      constructorArguments: [FACTORY_ADDRESS]
     })
   } catch {
     console.log('Verification problem (AdvancedViewer)')
