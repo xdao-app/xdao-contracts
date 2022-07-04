@@ -5,43 +5,29 @@ import { ethers, network, run, upgrades } from 'hardhat'
 
 import { SymbiosisBridge } from '../../typechain-types'
 
-const { deployProxy } = upgrades
+const { upgradeProxy } = upgrades
 const chainId = network.config.chainId
 
-interface SymbiosisBridgeAgruments {
-  metaRouter: string
-  metaRouterGateway: string
+interface SymbiosisBridgeUpgardeAgruments {
+  proxyAddress: string
 }
 
-const feeAddress = process.env.BRIDGE_FEE_ADDRESS
-const feeRate = 50
-
-const NETWORK_ARGUMENTS: Record<number, SymbiosisBridgeAgruments> = {
+const NETWORK_ARGUMENTS: Record<number, SymbiosisBridgeUpgardeAgruments> = {
   1: {
-    metaRouter: '0xB9E13785127BFfCc3dc970A55F6c7bF0844a3C15',
-    metaRouterGateway: '0x03B7551EB0162c838a10c2437b60D1f5455b9554'
+    proxyAddress: '0x0bB30688b39e707194F6a007FCAE63839B21CcdA'
   },
   56: {
-    metaRouter: '0x8D602356c7A6220CDE24BDfB4AB63EBFcb0a9b5d',
-    metaRouterGateway: '0xe2faC824615538C3A9ae704c75582cD1AbdD7cdf'
+    proxyAddress: '0x56a13eAfCfb20C0635c11EF8F822B82775E4deB1'
   },
   137: {
-    metaRouter: '0x733D33FA01424F83E9C095af3Ece80Ed6fa565F1',
-    metaRouterGateway: '0xF3273BD35e4Ad4fcd49DabDee33582b41Cbb9d77'
+    proxyAddress: '0xF17E248eB6165f937B768BF47C9bD244A1275e62'
   },
   43114: {
-    metaRouter: '0xE5E68630B5B759e6C701B70892AA8324b71e6e20',
-    metaRouterGateway: '0x25821A21C2E3455967229cADCA9b6fdd4A80a40b'
+    proxyAddress: '0x56a13eAfCfb20C0635c11EF8F822B82775E4deB1'
   },
   1337: {
-    metaRouter: '0x733D33FA01424F83E9C095af3Ece80Ed6fa565F1',
-    metaRouterGateway: '0xF3273BD35e4Ad4fcd49DabDee33582b41Cbb9d77'
+    proxyAddress: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0'
   }
-}
-
-const deleteLocalManifest = () => {
-  existsSync(`.openzeppelin/unknown-${chainId}.json`) &&
-    unlinkSync(`.openzeppelin/unknown-${chainId}.json`)
 }
 
 const renameLocalManifest = (contractName: string) => {
@@ -57,32 +43,31 @@ const main = async () => {
     return
   }
 
-  console.log(`Deploy Started with chain ID: ${chainId}`)
+  console.log(`Deploy Upgrade Started with chain ID: ${chainId}`)
 
   const [signer] = await ethers.getSigners()
 
   console.log(`Account: ${signer.address}`)
   console.log(`Network: ${network.name}-${chainId}`)
 
-  console.log(`Bridge Fee Address: ${feeAddress}`)
+  const symbiosisAddressesUpgrade = NETWORK_ARGUMENTS[chainId]
 
-  deleteLocalManifest()
-
-  const symbiosisAddresses = NETWORK_ARGUMENTS[chainId]
-
-  if (!symbiosisAddresses) {
-    console.log('Symbiosis Addresses undefined')
+  if (!symbiosisAddressesUpgrade) {
+    console.log('Symbiosis Addresses Upgrade undefined')
     return
   }
 
-  const { metaRouter, metaRouterGateway } = symbiosisAddresses
+  const { proxyAddress } = symbiosisAddressesUpgrade
 
-  const symbiosisBridge = (await deployProxy(
+  const symbiosisBridge = (await upgradeProxy(
+    proxyAddress,
     await ethers.getContractFactory('SymbiosisBridge'),
-    [signer.address, metaRouter, metaRouterGateway, feeAddress, feeRate]
+    { call: { fn: 'setOwner', args: [signer.address] } }
   )) as SymbiosisBridge
 
-  await symbiosisBridge.deployed()
+  await new Promise((r) => setTimeout(r, 10000))
+
+  console.log('Upgrade success')
 
   console.log({ symbiosisBridge: symbiosisBridge.address })
   renameLocalManifest('SymbiosisBridge')
