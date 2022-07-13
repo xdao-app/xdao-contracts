@@ -161,6 +161,13 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
+    cube: {
+      url: 'https://http-mainnet.cube.network',
+      chainId: 1818,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey],
+      gasPrice: 1000000000000
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
