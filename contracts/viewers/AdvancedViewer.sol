@@ -3,11 +3,15 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "../interfaces/IDaoViewer.sol";
+
 contract AdvancedViewer {
     address private immutable factory;
+    IDaoViewer private immutable daoViewer;
 
-    constructor(address _factory) {
+    constructor(address _factory, address _daoViewer) {
         factory = _factory;
+        daoViewer = IDaoViewer(_daoViewer);
     }
 
     function userDaos(
@@ -59,5 +63,19 @@ contract AdvancedViewer {
         }
 
         return _daos;
+    }
+
+    function getDaosInfo(address[] memory daoAddresses)
+        external
+        view
+        returns (DaoInfo[] memory)
+    {
+        DaoInfo[] memory daosInfo = new DaoInfo[](daoAddresses.length);
+
+        for (uint256 i = 0; i < daoAddresses.length; i++) {
+            daosInfo[i] = daoViewer.getDao(daoAddresses[i]);
+        }
+
+        return daosInfo;
     }
 }
