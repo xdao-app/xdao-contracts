@@ -180,6 +180,12 @@ const config: HardhatUserConfig = {
       accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
     },
 
+    godwoken: {
+      url: 'https://v1.mainnet.godwoken.io/rpc',
+      chainId: 71402,
+      accounts: [(process.env.PRIVATE_KEY as string) || vanityKey]
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
