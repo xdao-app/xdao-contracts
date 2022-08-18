@@ -35,4 +35,20 @@ interface IDao {
         bytes calldata _data,
         uint256 _value
     ) external returns (bool);
+
+    struct ExecutedVoting {
+        address target;
+        bytes data;
+        uint256 value;
+        uint256 nonce;
+        uint256 timestamp;
+        uint256 executionTimestamp;
+        bytes32 txHash;
+        bytes[] sigs;
+    }
+
+    function getExecutedVoting()
+        external
+        view
+        returns (ExecutedVoting[] memory);
 }

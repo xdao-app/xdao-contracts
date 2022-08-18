@@ -4,6 +4,7 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "../interfaces/IDaoViewer.sol";
+import "../interfaces/IDao.sol";
 
 contract AdvancedViewer {
     address private immutable factory;
@@ -23,9 +24,9 @@ contract AdvancedViewer {
 
         address[] memory _userDaos = new address[](30);
 
-        uint j = 0;
+        uint256 j = 0;
 
-        for (uint i = start; i < end; i++) {
+        for (uint256 i = start; i < end; i++) {
             (bool s2, bytes memory r2) = _factory.staticcall(
                 abi.encodeWithSelector(hex"b2dabed4", i)
             );
@@ -51,7 +52,7 @@ contract AdvancedViewer {
 
         address[] memory _daos = new address[](end - start);
 
-        for (uint i = start; i < end; i++) {
+        for (uint256 i = start; i < end; i++) {
             (bool s2, bytes memory r2) = _factory.staticcall(
                 abi.encodeWithSelector(hex"b2dabed4", i)
             );
@@ -77,5 +78,22 @@ contract AdvancedViewer {
         }
 
         return daosInfo;
+    }
+
+    function getDaosExecutedVoting(address[] memory daoAddresses)
+        external
+        view
+        returns (uint256[] memory)
+    {
+        uint256[] memory daosExecutedVoting = new uint256[](
+            daoAddresses.length
+        );
+
+        for (uint256 i = 0; i < daoAddresses.length; i++) {
+            daosExecutedVoting[i] = (IDao(daoAddresses[i]).getExecutedVoting())
+                .length;
+        }
+
+        return daosExecutedVoting;
     }
 }
