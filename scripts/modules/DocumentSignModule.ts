@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { existsSync, renameSync, unlinkSync } from 'fs'
 import { ethers, network, run, upgrades } from 'hardhat'
 
-import { DocumentSign } from '../../typechain-types'
+import { DocumentSignModule } from '../../typechain-types'
 
 const { deployProxy } = upgrades
 const chainId = network.config.chainId
@@ -36,9 +36,9 @@ const main = async () => {
   deleteLocalManifest()
 
   const documentSignModule = (await deployProxy(
-    await ethers.getContractFactory('DocumentSign'),
+    await ethers.getContractFactory('DocumentSignModule'),
     ['0x72cc6E4DE47f673062c41C67505188144a0a3D84']
-  )) as DocumentSign
+  )) as DocumentSignModule
 
   await documentSignModule.deployed()
 

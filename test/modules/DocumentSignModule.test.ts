@@ -8,8 +8,8 @@ import { ethers, network, upgrades } from 'hardhat'
 import {
   Dao,
   Dao__factory,
-  DocumentSign,
-  DocumentSign__factory,
+  DocumentSignModule,
+  DocumentSignModule__factory,
   Factory,
   Factory__factory,
   Shop,
@@ -25,7 +25,7 @@ describe('DocumentSignModule', () => {
 
   let dao: Dao
 
-  let documentSignModule: DocumentSign
+  let documentSignModule: DocumentSignModule
 
   let signerOwnerA: SignerWithAddress,
     signerOwnerB: SignerWithAddress,
@@ -43,7 +43,7 @@ describe('DocumentSignModule', () => {
   ) => {
     const voting = {
       target: documentSignModule.address,
-      data: DocumentSign__factory.createInterface().encodeFunctionData(
+      data: DocumentSignModule__factory.createInterface().encodeFunctionData(
         'createDocument',
         args
       ),
@@ -110,9 +110,9 @@ describe('DocumentSignModule', () => {
     dao = Dao__factory.connect(await factory.daoAt(0), signerOwnerA)
 
     documentSignModule = (await upgrades.deployProxy(
-      await ethers.getContractFactory('DocumentSign'),
+      await ethers.getContractFactory('DocumentSignModule'),
       [factory.address]
-    )) as DocumentSign
+    )) as DocumentSignModule
   })
 
   it('Create and Sign Document with 100% GT holders signs', async () => {
