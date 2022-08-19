@@ -1,0 +1,159 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xB6b5BfE5D80F34fC04ea69dE25D8e7230667DA19",
+    "txHash": "0xbee05877095c621d91165e1a62c2c70da52ccef59ea122454a777738c526ab58"
+  },
+  "proxies": [
+    {
+      "address": "0x98Aa507fe25Cb68D30769bAEF83B19C011864d4E",
+      "txHash": "0x67b38e2a86e9c91b4f4c4d9d7d7e47889be85edbf311be636d713a8182dfba74",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "1c9b59e2790f75c6396ab412c9cbddd4f41ea8815362bc60dd7926392889caf3": {
+      "address": "0xa9a7B94a6B6D6150c89Afb08d02a85F5D3E07a9C",
+      "txHash": "0x59dc1dcb33f497eed01cd52cdf5bf6bcf07507f21b77aade70a409d683302a16",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "factory",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IFactory)7444",
+            "contract": "DocumentSign",
+            "src": "contracts/modules/DocumentSignModule.sol:15"
+          },
+          {
+            "label": "documents",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_mapping(t_bytes32,t_struct(Document)7912_storage))",
+            "contract": "DocumentSign",
+            "src": "contracts/modules/DocumentSignModule.sol:29"
+          },
+          {
+            "label": "documentsHashes",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_array(t_bytes32)dyn_storage)",
+            "contract": "DocumentSign",
+            "src": "contracts/modules/DocumentSignModule.sol:31"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_contract(IFactory)7444": {
+            "label": "contract IFactory"
+          },
+          "t_mapping(t_address,t_array(t_bytes32)dyn_storage)": {
+            "label": "mapping(address => bytes32[])"
+          },
+          "t_mapping(t_address,t_mapping(t_bytes32,t_struct(Document)7912_storage))": {
+            "label": "mapping(address => mapping(bytes32 => struct DocumentSign.Document))"
+          },
+          "t_mapping(t_bytes32,t_struct(Document)7912_storage)": {
+            "label": "mapping(bytes32 => struct DocumentSign.Document)"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_struct(AddressSet)1184_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)883_storage"
+              }
+            ]
+          },
+          "t_struct(Document)7912_storage": {
+            "label": "struct DocumentSign.Document",
+            "members": [
+              {
+                "label": "index",
+                "type": "t_uint256"
+              },
+              {
+                "label": "creator",
+                "type": "t_address"
+              },
+              {
+                "label": "fileHash",
+                "type": "t_bytes32"
+              },
+              {
+                "label": "createdNumberBlock",
+                "type": "t_uint256"
+              },
+              {
+                "label": "effectiveTimestamp",
+                "type": "t_uint256"
+              },
+              {
+                "label": "expiredTimestamp",
+                "type": "t_uint256"
+              },
+              {
+                "label": "isDaoQuorumSign",
+                "type": "t_bool"
+              },
+              {
+                "label": "isSigned",
+                "type": "t_bool"
+              },
+              {
+                "label": "signedByAddresses",
+                "type": "t_struct(AddressSet)1184_storage"
+              }
+            ]
+          },
+          "t_struct(Set)883_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          }
+        }
+      }
+    }
+  }
+}
