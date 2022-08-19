@@ -7,6 +7,7 @@ import { executeTx } from '../../test/utils'
 import {
   DaoViewer__factory,
   DividendsModule__factory,
+  DocumentSign,
   Factory__factory,
   LaunchpadModule,
   NamedToken__factory,
@@ -247,6 +248,13 @@ async function main() {
   )) as PayrollModule
 
   console.log('PayrollModule:', payrollModule.address)
+
+  const documentSignModule = (await upgrades.deployProxy(
+    await ethers.getContractFactory('DocumentSign'),
+    [factory.address]
+  )) as DocumentSign
+
+  console.log('DocumentSignModule:', documentSignModule.address)
 
   console.log('Done')
 }
