@@ -183,6 +183,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    evmos: {
+      url: 'https://eth.bd.evmos.org:8545',
+      chainId: 9001,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
