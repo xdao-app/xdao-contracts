@@ -189,6 +189,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    arbitrumOne: {
+      url: 'https://arb1.arbitrum.io/rpc',
+      chainId: 42161,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
@@ -218,7 +224,8 @@ const config: HardhatUserConfig = {
       avalanche: process.env.SNOWTRACE_KEY,
       moonbeam: process.env.MOONBEAM_KEY,
       moonriver: process.env.MOONRIVER_KEY,
-      aurora: process.env.AURORA_KEY
+      aurora: process.env.AURORA_KEY,
+      arbitrumOne: process.env.ARBISCAN_KEY
     }
   },
 
