@@ -16,6 +16,8 @@ async function main() {
 
   console.log('PrivateExitModule:', privateExitModule.address)
 
+  await new Promise((r) => setTimeout(r, 10000))
+
   try {
     await run('verify:verify', {
       address: privateExitModule.address,

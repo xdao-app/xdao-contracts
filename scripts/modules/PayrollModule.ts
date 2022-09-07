@@ -13,9 +13,11 @@ async function main() {
 
   console.log('PayrollModule:', payroll.address)
 
+  await new Promise((r) => setTimeout(r, 10000))
+
   try {
     await run('verify:verify', {
-      address: '',
+      address: await upgrades.erc1967.getImplementationAddress(payroll.address),
       contract: 'contracts/modules/PayrollModule.sol:PayrollModule'
     })
   } catch {

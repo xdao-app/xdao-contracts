@@ -15,15 +15,19 @@ async function main() {
     await launchpad.setCoreAddresses(
       '0x72cc6E4DE47f673062c41C67505188144a0a3D84',
       '0xCA49EcF7e7bb9bBc9D1d295384663F6BA5c0e366',
-      '0xB42DD79C056d4b511c07c29d4c35403b47bE29B9'
+      '0xe642859C00BeD165bD6e36a60Dc94F9b5184D01f'
     )
   ).wait()
 
   console.log('LaunchpadModule: SetCoreAddresses Success')
 
+  await new Promise((r) => setTimeout(r, 10000))
+
   try {
     await run('verify:verify', {
-      address: '',
+      address: await upgrades.erc1967.getImplementationAddress(
+        launchpad.address
+      ),
       contract: 'contracts/modules/LaunchpadModule.sol:LaunchpadModule'
     })
   } catch {
