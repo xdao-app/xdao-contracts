@@ -1,0 +1,157 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0xcfBb6E80407E97c0C8A834BB1b2A16830E065c35",
+      "txHash": "0x54628aef819ea8ed2f3b8202932f3bf52a4c9f9816333056e038505bec2fb755",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "57232c3afef4a282d5378e2e53dedccff259766671011ab47e75e72eaa3954c2": {
+      "address": "0xc84512fa33b075eF2631815d819f62F34005D2B6",
+      "txHash": "0x2b74fc76598b775881184c3fb98c76c5e9f6af666293a688d8bd1e106289b617",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_contract(IERC1155Upgradeable)844",
+            "contract": "MerkleDistributor",
+            "src": "contracts/modules/MerkleDistributor.sol:21"
+          },
+          {
+            "label": "trees",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_mapping(t_uint256,t_struct(TreeInfo)10017_storage)",
+            "contract": "MerkleDistributor",
+            "src": "contracts/modules/MerkleDistributor.sol:23"
+          },
+          {
+            "label": "claimed",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_bool))",
+            "contract": "MerkleDistributor",
+            "src": "contracts/modules/MerkleDistributor.sol:24"
+          },
+          {
+            "label": "numberOfTrees",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_uint256",
+            "contract": "MerkleDistributor",
+            "src": "contracts/modules/MerkleDistributor.sol:25"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_contract(IERC1155Upgradeable)844": {
+            "label": "contract IERC1155Upgradeable"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
+            "label": "mapping(uint256 => mapping(address => bool))"
+          },
+          "t_mapping(t_uint256,t_struct(TreeInfo)10017_storage)": {
+            "label": "mapping(uint256 => struct MerkleDistributor.TreeInfo)"
+          },
+          "t_struct(TreeInfo)10017_storage": {
+            "label": "struct MerkleDistributor.TreeInfo",
+            "members": [
+              {
+                "label": "root",
+                "type": "t_bytes32"
+              },
+              {
+                "label": "tokenId",
+                "type": "t_uint256"
+              },
+              {
+                "label": "from",
+                "type": "t_address"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          }
+        }
+      }
+    }
+  }
+}
