@@ -195,6 +195,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    skale: {
+      url: 'https://mainnet.skalenodes.com/v1/parallel-stormy-spica',
+      chainId: 1350216234,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
