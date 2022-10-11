@@ -7,13 +7,14 @@ import { executeTx } from '../../test/utils'
 import {
   DaoViewer__factory,
   DividendsModule__factory,
-  DocumentSign,
+  DocumentSignModule,
   Factory__factory,
   LaunchpadModule,
   NamedToken__factory,
   PayrollModule,
   PrivateExitModule__factory,
   Shop__factory,
+  VestingModule,
   XDAO__factory
 } from '../../typechain-types'
 
@@ -250,11 +251,40 @@ async function main() {
   console.log('PayrollModule:', payrollModule.address)
 
   const documentSignModule = (await upgrades.deployProxy(
-    await ethers.getContractFactory('DocumentSign'),
+    await ethers.getContractFactory('DocumentSignModule'),
     [factory.address]
-  )) as DocumentSign
+  )) as DocumentSignModule
 
   console.log('DocumentSignModule:', documentSignModule.address)
+
+  const privateVestingModule = (await upgrades.deployProxy(
+    await ethers.getContractFactory('VestingModule'),
+    [
+      usdc.address,
+      dayjs().unix(),
+      dayjs().add(1, 'week').unix() - dayjs().unix()
+    ]
+  )) as VestingModule
+
+  console.log('VestingModule (Private Round):', privateVestingModule.address)
+
+  const seedVestingModule = (await upgrades.deployProxy(
+    await ethers.getContractFactory('VestingModule'),
+    [
+      sol.address,
+      dayjs().subtract(1, 'week').unix(),
+      dayjs().add(4, 'week').unix() - dayjs().unix()
+    ]
+  )) as VestingModule
+
+  console.log('VestingModule (Seed Round):', seedVestingModule.address)
+
+  await privateVestingModule.addAllocations(
+    [signer.address, friend.address],
+    [parseEther('1'), parseEther('2')]
+  )
+
+  await seedVestingModule.addAllocations([signer.address], [parseEther('5')])
 
   console.log('Done')
 }
