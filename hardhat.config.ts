@@ -201,6 +201,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    neonDevnet: {
+      url: 'https://proxy.devnet.neonlabs.org/solana',
+      chainId: 245022926,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
