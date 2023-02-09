@@ -2,11 +2,14 @@
 pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 import "../interfaces/IDaoViewer.sol";
 import "../interfaces/IDao.sol";
 
 contract AdvancedViewer {
+    using Address for address;
+
     address private immutable factory;
     IDaoViewer private immutable daoViewer;
 
@@ -27,12 +30,12 @@ contract AdvancedViewer {
         uint256 j = 0;
 
         for (uint256 i = start; i < end; i++) {
-            (bool s2, bytes memory r2) = _factory.staticcall(
-                abi.encodeWithSelector(hex"b2dabed4", i)
+            address daoAddress = abi.decode(
+                _factory.functionStaticCall(
+                    abi.encodeWithSelector(hex"b2dabed4", i)
+                ),
+                (address)
             );
-            require(s2);
-
-            address daoAddress = abi.decode(r2, (address));
 
             if (IERC20(daoAddress).balanceOf(user) > 0) {
                 _userDaos[j] = daoAddress;
@@ -53,12 +56,12 @@ contract AdvancedViewer {
         address[] memory _daos = new address[](end - start);
 
         for (uint256 i = start; i < end; i++) {
-            (bool s2, bytes memory r2) = _factory.staticcall(
-                abi.encodeWithSelector(hex"b2dabed4", i)
+            address daoAddress = abi.decode(
+                _factory.functionStaticCall(
+                    abi.encodeWithSelector(hex"b2dabed4", i)
+                ),
+                (address)
             );
-            require(s2);
-
-            address daoAddress = abi.decode(r2, (address));
 
             _daos[i - start] = daoAddress;
         }
@@ -95,5 +98,17 @@ contract AdvancedViewer {
         }
 
         return daosExecutedVoting;
+    }
+
+    function read(address[] calldata targets, bytes[] calldata data)
+        external
+        view
+        returns (bytes[] memory results)
+    {
+        results = new bytes[](targets.length);
+
+        for (uint256 i = 0; i < targets.length; i++) {
+            results[i] = targets[i].functionStaticCall(data[i]);
+        }
     }
 }
