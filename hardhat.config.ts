@@ -106,7 +106,7 @@ const config: HardhatUserConfig = {
     },
 
     astar: {
-      url: 'https://rpc.astar.network:8545',
+      url: 'https://astar.public.blastapi.io',
       chainId: 592,
       accounts
     },
