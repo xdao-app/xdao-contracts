@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import * as dotenv from 'dotenv'
+import { BigNumber } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import { ethers, network, upgrades } from 'hardhat'
 
@@ -14,8 +15,10 @@ import {
   PayrollModule,
   PrivateExitModule__factory,
   Shop__factory,
+  SubscriptionManager,
   VestingModule,
-  XDAO__factory
+  XDAO__factory,
+  XDAOQuestAwards__factory
 } from '../../typechain-types'
 
 dotenv.config()
@@ -285,6 +288,42 @@ async function main() {
   )
 
   await seedVestingModule.addAllocations([signer.address], [parseEther('5')])
+
+  const subscriptionManager = (await upgrades.deployProxy(
+    await ethers.getContractFactory('SubscriptionManager'),
+    [
+      xdaoToken.address,
+      await factory.daoAt(0),
+      BigNumber.from(2592000) // 30 days
+    ]
+  )) as SubscriptionManager
+
+  console.log('SubscriptionManager:', subscriptionManager.address)
+
+  const xdaoAwards = await new XDAOQuestAwards__factory(signer).deploy()
+  await xdaoAwards.mintBatch(signer.address, [0, 1], [10, 10], '0x')
+
+  console.log('ERC1155 XDAO Awards:', xdaoAwards.address)
+
+  await subscriptionManager.grantRole(
+    await subscriptionManager.MANAGER_ROLE(),
+    friend.address
+  )
+  await subscriptionManager.editDurationPerToken(0, BigNumber.from(129600)) // 30 days per 20 tokens
+  await subscriptionManager.editDurationPerToken(1, BigNumber.from(25920)) // 30 days per 100 tokens
+
+  await subscriptionManager.editReceivableERC1155(
+    xdaoAwards.address,
+    0,
+    0,
+    BigNumber.from(2592000)
+  ) // 30 days
+  await subscriptionManager.editReceivableERC1155(
+    xdaoAwards.address,
+    1,
+    1,
+    BigNumber.from(7776000)
+  ) // 90 days
 
   console.log('Done')
 }

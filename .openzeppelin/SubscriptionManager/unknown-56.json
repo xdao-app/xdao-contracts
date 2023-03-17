@@ -1,0 +1,268 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0xE040e55379EC0d05b3e63670d085fF8530bc51F8",
+      "txHash": "0x1abaecf793665f77ec52ac577b78c7214607c3b75854a0783ce89be23be7e174",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "63d7ae50dca5c9fae2fb66c53195d1de352ec01b5ed264a54ec908839cdb74bc": {
+      "address": "0x79416ac5B1d3dc7B157f0a45Af41828E7036A7b3",
+      "txHash": "0xc8c8f187d21f7ac700a1ec074b43784e9cb8de888fa452b1b0ee39364ab89b9f",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)179_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:61"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:235"
+          },
+          {
+            "label": "_roleMembers",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_mapping(t_bytes32,t_struct(AddressSet)2815_storage)",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "252",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlEnumerableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol:76"
+          },
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_contract(IERC20Upgradeable)1494",
+            "contract": "SubscriptionManager",
+            "src": "contracts/modules/SubscriptionManager.sol:20"
+          },
+          {
+            "label": "recipientAddress",
+            "offset": 0,
+            "slot": "302",
+            "type": "t_address",
+            "contract": "SubscriptionManager",
+            "src": "contracts/modules/SubscriptionManager.sol:21"
+          },
+          {
+            "label": "minDuration",
+            "offset": 20,
+            "slot": "302",
+            "type": "t_uint64",
+            "contract": "SubscriptionManager",
+            "src": "contracts/modules/SubscriptionManager.sol:22"
+          },
+          {
+            "label": "subscriptions",
+            "offset": 0,
+            "slot": "303",
+            "type": "t_mapping(t_uint256,t_mapping(t_address,t_struct(SubscriptionStatus)13744_storage))",
+            "contract": "SubscriptionManager",
+            "src": "contracts/modules/SubscriptionManager.sol:36"
+          },
+          {
+            "label": "durationPerToken",
+            "offset": 0,
+            "slot": "304",
+            "type": "t_mapping(t_uint8,t_uint64)",
+            "contract": "SubscriptionManager",
+            "src": "contracts/modules/SubscriptionManager.sol:40"
+          },
+          {
+            "label": "receivableERC1155",
+            "offset": 0,
+            "slot": "305",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(SubscriptionParameters)13749_storage))",
+            "contract": "SubscriptionManager",
+            "src": "contracts/modules/SubscriptionManager.sol:43"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_bytes32": {
+            "label": "bytes32"
+          },
+          "t_contract(IERC20Upgradeable)1494": {
+            "label": "contract IERC20Upgradeable"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(SubscriptionParameters)13749_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct SubscriptionManager.SubscriptionParameters))"
+          },
+          "t_mapping(t_address,t_struct(SubscriptionStatus)13744_storage)": {
+            "label": "mapping(address => struct SubscriptionManager.SubscriptionStatus)"
+          },
+          "t_mapping(t_bytes32,t_struct(AddressSet)2815_storage)": {
+            "label": "mapping(bytes32 => struct EnumerableSetUpgradeable.AddressSet)"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)179_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_struct(SubscriptionStatus)13744_storage))": {
+            "label": "mapping(uint256 => mapping(address => struct SubscriptionManager.SubscriptionStatus))"
+          },
+          "t_mapping(t_uint256,t_struct(SubscriptionParameters)13749_storage)": {
+            "label": "mapping(uint256 => struct SubscriptionManager.SubscriptionParameters)"
+          },
+          "t_mapping(t_uint8,t_uint64)": {
+            "label": "mapping(uint8 => uint64)"
+          },
+          "t_struct(AddressSet)2815_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)2514_storage"
+              }
+            ]
+          },
+          "t_struct(RoleData)179_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32"
+              }
+            ]
+          },
+          "t_struct(Set)2514_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)"
+              }
+            ]
+          },
+          "t_struct(SubscriptionParameters)13749_storage": {
+            "label": "struct SubscriptionManager.SubscriptionParameters",
+            "members": [
+              {
+                "label": "subscriptionLevel",
+                "type": "t_uint8"
+              },
+              {
+                "label": "durationScaled",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_struct(SubscriptionStatus)13744_storage": {
+            "label": "struct SubscriptionManager.SubscriptionStatus",
+            "members": [
+              {
+                "label": "subscriptionLevel",
+                "type": "t_uint8"
+              },
+              {
+                "label": "endTimestampScaled",
+                "type": "t_uint256"
+              }
+            ]
+          },
+          "t_uint256": {
+            "label": "uint256"
+          },
+          "t_uint64": {
+            "label": "uint64"
+          },
+          "t_uint8": {
+            "label": "uint8"
+          }
+        }
+      }
+    }
+  }
+}

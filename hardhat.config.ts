@@ -1,14 +1,14 @@
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-solhint'
 import '@nomiclabs/hardhat-waffle'
-import '@typechain/hardhat'
 import '@openzeppelin/hardhat-upgrades'
+import '@typechain/hardhat'
+import 'dotenv/config'
 import 'hardhat-abi-exporter'
 import 'hardhat-contract-sizer'
 import 'hardhat-gas-reporter'
 import 'hardhat-tracer'
 import 'solidity-coverage'
-import 'dotenv/config'
 
 import { HardhatUserConfig } from 'hardhat/config'
 
@@ -22,13 +22,13 @@ const config: HardhatUserConfig = {
     },
 
     mainnet: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
+      url: `https://rpc.ankr.com/eth`,
       chainId: 1,
       accounts
     },
 
     bsc: {
-      url: `https://bscrpc.com`,
+      url: `https://rpc.ankr.com/bsc`,
       chainId: 56,
       accounts
     },
@@ -52,7 +52,7 @@ const config: HardhatUserConfig = {
     },
 
     polygon: {
-      url: `https://polygon-rpc.com`,
+      url: `https://polygon.llamarpc.com`,
       chainId: 137,
       accounts
     },
