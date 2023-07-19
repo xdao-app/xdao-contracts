@@ -220,6 +220,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    zetaTest: {
+      url: 'https://zetachain-athens-evm.blockpi.network/v1/rpc/public',
+      chainId: 7001,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
