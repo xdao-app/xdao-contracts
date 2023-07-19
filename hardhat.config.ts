@@ -207,6 +207,13 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    base: {
+      url: 'https://developer-access-mainnet.base.org',
+      chainId: 8453,
+      accounts,
+      gasPrice: 0.13e9
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,

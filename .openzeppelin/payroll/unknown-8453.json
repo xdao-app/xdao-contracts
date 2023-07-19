@@ -1,0 +1,142 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xD2248bfeA32Cba6745553Aa2ff30C0D8286f6376",
+    "txHash": "0x505b73d0ba716716ddc11d4d915a0c264e9e6ced9396911066eda9b714092ce1"
+  },
+  "proxies": [
+    {
+      "address": "0x31B407eE1960d6DaC4273Bf57c5FC1CCdF53469d",
+      "txHash": "0xde424e4eed62fb310dc8e106673f02bc96f080c6c05ffcff5479929f11cedd6d",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "68df96438daefeac0398b2f13a0c3ecfc372b31f5193b89aa826b5046abf6eab": {
+      "address": "0xbcE99B80C3c0C3EBA8B3D0f103fB557bf52a85bD",
+      "txHash": "0x72b09c635e1f1e386a9da6f9b4be760b68a8282a61d0526abfef5ea312c77832",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "factory",
+            "offset": 2,
+            "slot": "0",
+            "type": "t_contract(IFactory)10900",
+            "contract": "PayrollModule",
+            "src": "contracts/modules/PayrollModule.sol:14"
+          },
+          {
+            "label": "numberOfPayrolls",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "PayrollModule",
+            "src": "contracts/modules/PayrollModule.sol:26"
+          },
+          {
+            "label": "payrolls",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Payroll)12900_storage))",
+            "contract": "PayrollModule",
+            "src": "contracts/modules/PayrollModule.sol:28"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_contract(IFactory)10900": {
+            "label": "contract IFactory",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Payroll)12900_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct PayrollModule.Payroll))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Payroll)12900_storage)": {
+            "label": "mapping(uint256 => struct PayrollModule.Payroll)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Payroll)12900_storage": {
+            "label": "struct PayrollModule.Payroll",
+            "members": [
+              {
+                "label": "isActive",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "recipient",
+                "type": "t_address",
+                "offset": 1,
+                "slot": "0"
+              },
+              {
+                "label": "payrollStartTimestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "activeUntilTimestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "currency",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "amountPerSecond",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "lastClaimTimestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              }
+            ],
+            "numberOfBytes": "192"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    }
+  }
+}
