@@ -214,6 +214,12 @@ const config: HardhatUserConfig = {
       gasPrice: 0.13e9
     },
 
+    mantle: {
+      url: 'https://rpc.mantle.xyz',
+      chainId: 5000,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,

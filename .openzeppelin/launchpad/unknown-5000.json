@@ -1,0 +1,294 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x9601A4378683b129A8efcE035e83222b819D639d",
+    "txHash": "0x7118ff87e73c5273415bb78132a150bd82e483b33cb37664594b743ab5ea08b1"
+  },
+  "proxies": [
+    {
+      "address": "0xbcE99B80C3c0C3EBA8B3D0f103fB557bf52a85bD",
+      "txHash": "0x58be0bee311dd8ea6ce5c3227309d45dc617db03bf24cabe0e94583213d1c4cd",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "2c612e5640955c9a2b8e2ea0f45502ad019c5b4e6571fe507ce9b7f42230f459": {
+      "address": "0x41185246595EAdE95ec0acF9aDF6417fE7a94F39",
+      "txHash": "0x33fee9f6aa6c82a45528749c8fef9598b68b3cd5ab62368cd304f97c87b6639c",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "factory",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(IFactory)10900",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:18"
+          },
+          {
+            "label": "shop",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_contract(IShop)11025",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:19"
+          },
+          {
+            "label": "privateExitModule",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_contract(IPrivateExitModule)10970",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:20"
+          },
+          {
+            "label": "sales",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_struct(Sale)11967_storage))",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:35"
+          },
+          {
+            "label": "saleIndexes",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:37"
+          },
+          {
+            "label": "bought",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_bool)))",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:39"
+          },
+          {
+            "label": "totalBought",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))",
+            "contract": "LaunchpadModule",
+            "src": "contracts/modules/LaunchpadModule.sol:42"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IFactory)10900": {
+            "label": "contract IFactory",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IPrivateExitModule)10970": {
+            "label": "contract IPrivateExitModule",
+            "numberOfBytes": "20"
+          },
+          "t_contract(IShop)11025": {
+            "label": "contract IShop",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_mapping(t_address,t_bool)))": {
+            "label": "mapping(address => mapping(uint256 => mapping(address => bool)))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_struct(Sale)11967_storage))": {
+            "label": "mapping(address => mapping(uint256 => struct LaunchpadModule.Sale))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
+            "label": "mapping(address => mapping(uint256 => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_mapping(t_address,t_bool))": {
+            "label": "mapping(uint256 => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Sale)11967_storage)": {
+            "label": "mapping(uint256 => struct LaunchpadModule.Sale)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_uint256)": {
+            "label": "mapping(uint256 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)2815_storage": {
+            "label": "struct EnumerableSetUpgradeable.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)2514_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Sale)11967_storage": {
+            "label": "struct LaunchpadModule.Sale",
+            "members": [
+              {
+                "label": "currency",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "rate",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "isFinite",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "isLimitedTotalSaleAmount",
+                "type": "t_bool",
+                "offset": 1,
+                "slot": "2"
+              },
+              {
+                "label": "isWhitelist",
+                "type": "t_bool",
+                "offset": 2,
+                "slot": "2"
+              },
+              {
+                "label": "isAllocation",
+                "type": "t_bool",
+                "offset": 3,
+                "slot": "2"
+              },
+              {
+                "label": "endTimestamp",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "totalSaleAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "whitelist",
+                "type": "t_struct(AddressSet)2815_storage",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "allocations",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "7"
+              }
+            ],
+            "numberOfBytes": "256"
+          },
+          "t_struct(Set)2514_storage": {
+            "label": "struct EnumerableSetUpgradeable.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_indexes",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    }
+  }
+}
