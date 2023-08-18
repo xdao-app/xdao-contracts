@@ -103,6 +103,9 @@ contract CrowdfundingModule is
         uint256 tokenAmount
     );
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
+
     function initialize() public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();

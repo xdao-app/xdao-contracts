@@ -64,6 +64,9 @@ contract DaoVestingModule is
         uint256 amount
     );
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
+
     function initialize() public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();
