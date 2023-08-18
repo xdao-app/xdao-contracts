@@ -120,6 +120,7 @@ describe("DaoVestingModule", () => {
       );
 
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("0"));
+
       await vesting.fillLpBalance(firstDao.address, 0);
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("20"));
     });
@@ -174,7 +175,6 @@ describe("DaoVestingModule", () => {
         )
       ).to.be.revertedWith("VestingModule: only for Crowdfunding Module");
 
-
       await network.provider.send("evm_setNextBlockTimestamp", [
         start + duration / 3,
       ]);
@@ -184,9 +184,9 @@ describe("DaoVestingModule", () => {
         await vesting.releasable(claimers[0].address, firstDao.address, 0)
       ).to.eql(parseEther("1"));
 
-      expect(await vesting.releasable(signer.address, firstDao.address, 0)).to.eql(
-        parseEther("0")
-      );
+      expect(
+        await vesting.releasable(signer.address, firstDao.address, 0)
+      ).to.eql(parseEther("0"));
 
       await expect(vesting.release(firstDao.address, 0)).to.be.revertedWith(
         "VestingModule: Not eligible for release"
@@ -230,6 +230,9 @@ describe("DaoVestingModule", () => {
       expect(
         await vesting.lastClaimedTimestamp(signer.address, firstDao.address, 0)
       ).to.eql(BigNumber.from((start + duration / 2).toString()));
+      expect(
+        await vesting.remainingTokenAmount(firstDao.address, lp.address)
+      ).to.eql(parseEther("17.5"));
 
       await network.provider.send("evm_setNextBlockTimestamp", [
         start + 2 * duration,
@@ -243,6 +246,12 @@ describe("DaoVestingModule", () => {
       await vesting.release(firstDao.address, 0);
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("5"));
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("15"));
+      expect(
+        await vesting.remainingTokenAmount(firstDao.address, lp.address)
+      ).to.eql(parseEther("15"));
+      expect(
+        await vesting.remainingTokenAmount(secondDao.address, lp.address)
+      ).to.eql(parseEther("0"));
     });
 
     it("Few Vestings", async () => {
@@ -264,6 +273,27 @@ describe("DaoVestingModule", () => {
               {
                 claimer: signer.address,
                 allocation: parseEther("10"),
+              },
+            ],
+          ]
+        ),
+        0,
+        signer
+      );
+
+      await executeTxRaw(
+        secondDao.address,
+        vesting.address,
+        DaoVestingModule__factory.createInterface().encodeFunctionData(
+          "initVesting",
+          [
+            lp.address,
+            start,
+            duration,
+            [
+              {
+                claimer: signer.address,
+                allocation: parseEther("5"),
               },
             ],
           ]
@@ -345,7 +375,33 @@ describe("DaoVestingModule", () => {
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("1.25"));
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("18.75"));
 
+      await expect(vesting.release(secondDao.address, 0)).to.be.revertedWith(
+        "VestingModule: Not enough balance"
+      );
+
       await vesting.release(firstDao.address, 0);
+      expect(await lp.balanceOf(signer.address)).to.eql(parseEther("16.25"));
+      expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("3.75"));
+
+      await lp.approve(vesting.address, parseEther("100"));
+
+      await vesting.fillTokenBalance(
+        secondDao.address,
+        lp.address,
+        parseEther("3")
+      );
+      expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("6.75"));
+      await expect(vesting.release(secondDao.address, 0)).to.be.revertedWith(
+        "VestingModule: Not enough balance"
+      );
+
+      await vesting.fillTokenBalance(
+        secondDao.address,
+        lp.address,
+        parseEther("2")
+      );
+      expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("8.75"));
+      await vesting.release(secondDao.address, 0);
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("16.25"));
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("3.75"));
     });

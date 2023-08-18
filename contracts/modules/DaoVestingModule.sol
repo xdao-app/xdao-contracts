@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 
 import "../interfaces/IFactory.sol";
 import "../interfaces/IShop.sol";
+import "../interfaces/IDao.sol";
 
 contract DaoVestingModule is
     Initializable,
@@ -44,6 +45,8 @@ contract DaoVestingModule is
     // dao address => number of vestings
     mapping(address => mapping(uint256 => VestingInfo)) private vestings;
     // dao address => id => vesting info
+    mapping(address => mapping(address => uint256)) public remainingTokenAmount;
+    // dao address => token index => total filled token amount
 
     event InitVesting(
         address indexed daoAddress,
@@ -144,6 +147,10 @@ contract DaoVestingModule is
         uint256 _allocation
     ) external onlyCrowdfunding {
         _checkIndex(_dao, _vestingId);
+        remainingTokenAmount[_dao][
+            vestings[_dao][_vestingId].currency
+        ] += _allocation;
+
         _addAllocation(_dao, _vestingId, _claimer, _allocation);
     }
 
@@ -175,6 +182,25 @@ contract DaoVestingModule is
 
     function fillLpBalance(address _dao, uint256 _id) external {
         require(shop.buyPrivateOffer(_dao, _id));
+
+        IDao dao = IDao(_dao);
+        address lpAddress = dao.lp();
+        remainingTokenAmount[_dao][lpAddress] += shop
+            .privateOffers(_dao, _id)
+            .lpAmount;
+    }
+
+    function fillTokenBalance(
+        address _dao,
+        address _currency,
+        uint256 _amount
+    ) external {
+        IERC20Upgradeable(_currency).safeTransferFrom(
+            msg.sender,
+            address(this),
+            _amount
+        );
+        remainingTokenAmount[_dao][_currency] += _amount;
     }
 
     function release(address _dao, uint256 _vestingId) external {
@@ -182,8 +208,13 @@ contract DaoVestingModule is
         uint256 releasable_ = releasable(msg.sender, _dao, _vestingId);
 
         require(releasable_ != 0, "VestingModule: Not eligible for release");
+        require(
+            releasable_ <= remainingTokenAmount[_dao][vesting.currency],
+            "VestingModule: Not enough balance"
+        );
 
         vesting.claimersInfo[msg.sender].lastClaimedTimestamp = block.timestamp;
+        remainingTokenAmount[_dao][vesting.currency] -= releasable_;
 
         IERC20Upgradeable token = IERC20Upgradeable(vesting.currency);
 
