@@ -230,12 +230,15 @@ contract DaoVestingModule is
     ) public view returns (uint256) {
         VestingInfo storage vesting = vestings[_dao][_vestingId];
 
+        uint256 start_ = vesting.start;
+        uint256 duration_ = vesting.duration;
+
         if (_vestingId >= numberOfVestings[_dao]) {
             return 0;
         }
 
         //Before the vesting begins
-        if (block.timestamp <= vesting.start) {
+        if (block.timestamp <= start_) {
             return 0;
         }
 
@@ -245,14 +248,14 @@ contract DaoVestingModule is
         uint256 totalAllocation_ = vesting.claimersInfo[_claimer].allocation;
 
         // After the end of vesting
-        if (block.timestamp >= vesting.start + vesting.duration) {
+        if (block.timestamp >= start_ + duration_) {
             return totalAllocation_ - alreadyClaimedAmount_;
         }
 
         // During the vesting period
         return
-            ((block.timestamp - vesting.start) * totalAllocation_) /
-            vesting.duration -
+            ((block.timestamp - start_) * totalAllocation_) /
+            duration_ -
             alreadyClaimedAmount_;
     }
 
