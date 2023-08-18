@@ -25,7 +25,7 @@ contract DaoVestingModule is
 
     struct ClaimerInfo {
         uint256 allocation;
-        uint256 lastClaimedTimestamp;
+        uint256 alreadyClaimedAmount;
     }
 
     struct Claimer {
@@ -213,8 +213,8 @@ contract DaoVestingModule is
             "VestingModule: Not enough balance"
         );
 
-        vesting.claimersInfo[msg.sender].lastClaimedTimestamp = block.timestamp;
         remainingTokenAmount[_dao][vesting.currency] -= releasable_;
+        vesting.claimersInfo[msg.sender].alreadyClaimedAmount += releasable_;
 
         IERC20Upgradeable token = IERC20Upgradeable(vesting.currency);
 
@@ -239,35 +239,30 @@ contract DaoVestingModule is
             return 0;
         }
 
-        uint256 lastClaimedTimestamp_ = vesting
+        uint256 alreadyClaimedAmount_ = vesting
             .claimersInfo[_claimer]
-            .lastClaimedTimestamp;
+            .alreadyClaimedAmount;
         uint256 totalAllocation_ = vesting.claimersInfo[_claimer].allocation;
-
-        if (lastClaimedTimestamp_ == 0) {
-            lastClaimedTimestamp_ = vesting.start;
-        }
 
         // After the end of vesting
         if (block.timestamp >= vesting.start + vesting.duration) {
-            return
-                ((vesting.start + vesting.duration - lastClaimedTimestamp_) *
-                    totalAllocation_) / vesting.duration;
+            return totalAllocation_ - alreadyClaimedAmount_;
         }
 
         // During the vesting period
         return
-            ((block.timestamp - lastClaimedTimestamp_) * totalAllocation_) /
-            vesting.duration;
+            ((block.timestamp - vesting.start) * totalAllocation_) /
+            vesting.duration -
+            alreadyClaimedAmount_;
     }
 
-    function lastClaimedTimestamp(
+    function alreadyClaimedAmount(
         address _claimer,
         address _dao,
         uint256 _vestingId
     ) external view returns (uint256) {
         VestingInfo storage vesting = vestings[_dao][_vestingId];
-        return vesting.claimersInfo[_claimer].lastClaimedTimestamp;
+        return vesting.claimersInfo[_claimer].alreadyClaimedAmount;
     }
 
     struct Vesting {

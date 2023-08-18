@@ -228,11 +228,11 @@ describe("DaoVestingModule", () => {
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("2.5"));
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("17.5"));
       expect(
-        await vesting.lastClaimedTimestamp(signer.address, firstDao.address, 0)
-      ).to.eql(BigNumber.from((start + duration / 2).toString()));
-      expect(
         await vesting.remainingTokenAmount(firstDao.address, lp.address)
       ).to.eql(parseEther("17.5"));
+      expect(
+        await vesting.alreadyClaimedAmount(signer.address, firstDao.address, 0)
+      ).to.eql(parseEther("2.5"));
 
       await network.provider.send("evm_setNextBlockTimestamp", [
         start + 2 * duration,
