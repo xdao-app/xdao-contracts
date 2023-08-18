@@ -90,11 +90,10 @@ contract DaoVestingModule is
         );
     }
 
-    modifier onlyPermittedContracts() {
+    modifier onlyCrowdfunding() {
         require(
-            factory.containsDao(msg.sender) ||
-                msg.sender == crowdfundingAddress,
-            "VestingModule: only for DAOs"
+            msg.sender == crowdfundingAddress,
+            "VestingModule: only for Crowdfunding Module"
         );
         _;
     }
@@ -143,7 +142,7 @@ contract DaoVestingModule is
         uint256 _vestingId,
         address _claimer,
         uint256 _allocation
-    ) public onlyPermittedContracts {
+    ) external onlyCrowdfunding {
         _checkIndex(_dao, _vestingId);
         _addAllocation(_dao, _vestingId, _claimer, _allocation);
     }
