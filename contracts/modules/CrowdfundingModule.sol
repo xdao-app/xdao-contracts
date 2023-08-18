@@ -35,14 +35,14 @@ contract CrowdfundingModule is
     struct Sale {
         address currency;
         address tokenAddress;
-        uint256 rate;
-        uint256 saleAmount;
-        uint256 minimumEntranceAmount;
-        uint256 maximumEntranceAmount;
         bool isFinite;
         bool isVesting;
         bool isWhitelist;
         bool isAllocation;
+        uint256 rate;
+        uint256 saleAmount;
+        uint256 minimumEntranceAmount;
+        uint256 maximumEntranceAmount;
         uint256 endTimestamp;
         uint256 vestingId;
         EnumerableSetUpgradeable.AddressSet whitelist;
@@ -246,7 +246,8 @@ contract CrowdfundingModule is
         );
         require(_saleAmount > 0, "CrowdfundingModule: Invalid Sale Amount");
 
-        Sale storage sale = crowdfundings[_dao][saleIndexes[_dao]];
+        uint256 currentIndex = saleIndexes[_dao];
+        Sale storage sale = crowdfundings[_dao][currentIndex];
 
         if (_entranceLimits.length == 2) {
             require(
@@ -268,7 +269,7 @@ contract CrowdfundingModule is
 
         for (uint256 i = 0; i < _addWhitelist.length; ++i) {
             sale.whitelist.add(_addWhitelist[i].investor);
-            investorsInfo[_dao][saleIndexes[_dao]][_addWhitelist[i].investor]
+            investorsInfo[_dao][currentIndex][_addWhitelist[i].investor]
                 .allocation = _addWhitelist[i].allocation;
         }
         for (uint256 i = 0; i < _removeWhitelist.length; ++i) {
@@ -277,23 +278,25 @@ contract CrowdfundingModule is
     }
 
     function fillLpBalance(address _dao, uint256 _id) external {
+        uint256 currentIndex = saleIndexes[msg.sender];
         require(shop.buyPrivateOffer(_dao, _id));
+
+        filledTokenAmount[_dao][currentIndex] += shop
+            .privateOffers(_dao, _id)
+            .lpAmount;
     }
 
-    function fillTokenBalance(
-        address _dao,
-        uint256 _saleIndex,
-        uint256 _amount
-    ) external {
+    function fillTokenBalance(address _dao, uint256 _amount) external {
         require(factory.containsDao(_dao), "CrowdfundingModule: only for DAOs");
+        uint256 currentIndex = saleIndexes[msg.sender];
 
-        Sale storage sale = crowdfundings[_dao][_saleIndex];
+        Sale storage sale = crowdfundings[_dao][currentIndex];
         IERC20Upgradeable(sale.tokenAddress).safeTransferFrom(
             msg.sender,
             address(this),
             _amount
         );
-        filledTokenAmount[_dao][_saleIndex] += _amount;
+        filledTokenAmount[_dao][currentIndex] += _amount;
     }
 
     function closeSale(bool _isSendTokensBack) external onlyDao {
@@ -403,7 +406,14 @@ contract CrowdfundingModule is
         uint256 tokenAmount = ((currencyAmount - feeAmount) *
             10 ** IERC20MetadataUpgradeable(sale.tokenAddress).decimals()) /
             sale.rate;
+
         totalSoldTokenAmount[_dao][saleIndex] += tokenAmount;
+
+        require(
+            totalSoldTokenAmount[_dao][saleIndex] <=
+                filledTokenAmount[_dao][saleIndex],
+            "CrowdfundingModule: not enough balance"
+        );
 
         if (sale.isVesting) {
             IERC20Upgradeable(sale.tokenAddress).safeTransfer(
