@@ -46,7 +46,7 @@ contract DaoVestingModule is
     mapping(address => mapping(uint256 => VestingInfo)) private vestings;
     // dao address => id => vesting info
     mapping(address => mapping(address => uint256)) public remainingTokenAmount;
-    // dao address => token index => total filled token amount
+    // dao address => token address => total filled token amount
 
     event InitVesting(
         address indexed daoAddress,

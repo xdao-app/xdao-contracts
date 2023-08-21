@@ -302,23 +302,18 @@ contract CrowdfundingModule is
         filledTokenAmount[_dao][currentIndex] += _amount;
     }
 
-    function closeSale(bool _isSendTokensBack) external onlyDao {
+    function closeSale() external onlyDao {
         uint256 currentIndex = saleIndexes[msg.sender];
-        if (_isSendTokensBack) {
-            // I am not sure here. Maybe It will be better to remove _isSendTokensBack
-            // and check tokenAddress is not LP address then send tokens back if it's true
-            address tokenAddress = crowdfundings[msg.sender][currentIndex]
-                .tokenAddress;
-            uint256 tokenAmount = filledTokenAmount[msg.sender][currentIndex];
-            uint256 totalSoldToken = totalSoldTokenAmount[msg.sender][
-                currentIndex
-            ];
 
-            IERC20Upgradeable(tokenAddress).safeTransfer(
-                msg.sender,
-                tokenAmount - totalSoldToken
-            );
-        }
+        address tokenAddress = crowdfundings[msg.sender][currentIndex]
+            .tokenAddress;
+        uint256 tokenAmount = filledTokenAmount[msg.sender][currentIndex];
+        uint256 totalSoldToken = totalSoldTokenAmount[msg.sender][currentIndex];
+
+        IERC20Upgradeable(tokenAddress).safeTransfer(
+            msg.sender,
+            tokenAmount - totalSoldToken
+        );
 
         ++saleIndexes[msg.sender];
         emit CloseSale(msg.sender, currentIndex);
@@ -326,6 +321,15 @@ contract CrowdfundingModule is
 
     function burnLp(address _dao, uint256 _id) external {
         require(factory.containsDao(_dao), "CrowdfundingModule: only for DAOs");
+        uint256 currentIndex = saleIndexes[msg.sender];
+        uint256 lpAmount = privateExitModule
+            .privateExitOffers(_dao, _id)
+            .lpAmount;
+
+        require(
+            filledTokenAmount[_dao][currentIndex] >= lpAmount,
+            "CrowdfundingModule: not enough balance"
+        );
 
         IERC20Upgradeable lp = IERC20Upgradeable(IDao(_dao).lp());
 
@@ -334,6 +338,8 @@ contract CrowdfundingModule is
         );
 
         require(privateExitModule.privateExit(_dao, _id));
+
+        filledTokenAmount[_dao][currentIndex] -= lpAmount;
     }
 
     function buy(

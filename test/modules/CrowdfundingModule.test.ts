@@ -23,7 +23,7 @@ import {
   Shop__factory,
   Token,
   Token__factory,
-  XDAO__factory,
+  XDAO__factory
 } from "../../typechain-types";
 import { executeTx, executeTxRaw } from "../utils";
 
@@ -281,7 +281,7 @@ describe("Crowdfunding", () => {
       );
 
       await crowdfunding.burnLp(firstDao.address, 0);
-
+      
       expect(await lp.balanceOf(crowdfunding.address)).to.eql(
         parseEther("4.03")
       );
@@ -909,8 +909,7 @@ describe("Crowdfunding", () => {
         firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
-          "closeSale",
-          [false]
+          "closeSale"
         ),
         0,
         signer
@@ -1004,8 +1003,7 @@ describe("Crowdfunding", () => {
         firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
-          "closeSale",
-          [true]
+          "closeSale"
         ),
         0,
         signer
