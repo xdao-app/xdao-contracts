@@ -23,7 +23,7 @@ import {
   Shop__factory,
   Token,
   Token__factory,
-  XDAO__factory,
+  XDAO__factory
 } from "../../typechain-types";
 import { executeTx, executeTxRaw } from "../utils";
 
@@ -32,7 +32,8 @@ describe("Crowdfunding", () => {
 
   let factory: Factory;
 
-  let dao: Dao;
+  let firstDao: Dao;
+  let secondDao: Dao;
 
   let signer: SignerWithAddress;
 
@@ -69,8 +70,10 @@ describe("Crowdfunding", () => {
     await shop.setFactory(factory.address);
 
     await factory.create("", "", 51, [signer.address], [parseEther("1")]);
+    await factory.create("", "", 51, [signer.address], [parseEther("10")]);
 
-    dao = Dao__factory.connect(await factory.daoAt(0), signer);
+    firstDao = Dao__factory.connect(await factory.daoAt(0), signer);
+    secondDao = Dao__factory.connect(await factory.daoAt(1), signer);
 
     privateExitModule = await new PrivateExitModule__factory(signer).deploy();
 
@@ -123,7 +126,7 @@ describe("Crowdfunding", () => {
   describe("With LP", () => {
     beforeEach(async () => {
       await executeTx(
-        dao.address,
+        firstDao.address,
         shop.address,
         "createLp",
         ["string", "string"],
@@ -132,10 +135,10 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      lp = LP__factory.connect(await dao.lp(), signer);
+      lp = LP__factory.connect(await firstDao.lp(), signer);
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         shop.address,
         Shop__factory.createInterface().encodeFunctionData(
           "createPrivateOffer",
@@ -146,14 +149,14 @@ describe("Crowdfunding", () => {
       );
       expect(await lp.balanceOf(crowdfunding.address)).to.eql(parseEther("0"));
 
-      await crowdfunding.fillLpBalance(dao.address, 0);
+      await crowdfunding.fillLpBalance(firstDao.address, 0);
 
       expect(await lp.balanceOf(crowdfunding.address)).to.eql(parseEther("20"));
     });
 
     it("Base Crowdfunding", async () => {
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "initSale",
@@ -173,7 +176,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -190,9 +193,30 @@ describe("Crowdfunding", () => {
         [],
       ]);
 
+      await executeTxRaw(
+        secondDao.address,
+        crowdfunding.address,
+        CrowdfundingModule__factory.createInterface().encodeFunctionData(
+          "initSale",
+          [
+            usdc.address,
+            lp.address,
+            parseEther("1"),
+            parseEther("20"),
+            0,
+            0,
+            [],
+            [false, false, false, false],
+            [],
+          ]
+        ),
+        0,
+        signer
+      );
+
       await expect(
         executeTxRaw(
-          dao.address,
+          firstDao.address,
           crowdfunding.address,
           CrowdfundingModule__factory.createInterface().encodeFunctionData(
             "initSale",
@@ -215,7 +239,11 @@ describe("Crowdfunding", () => {
 
       await usdc.approve(crowdfunding.address, parseEther("10"));
 
-      await crowdfunding.buy(dao.address, parseEther("4"), true);
+      await expect(
+        crowdfunding.buy(secondDao.address, parseEther("4"), true)
+      ).to.be.revertedWith("CrowdfundingModule: not enough balance");
+
+      await crowdfunding.buy(firstDao.address, parseEther("4"), true);
 
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("1.98"));
       expect(await usdc.balanceOf(signer.address)).to.eql(parseEther("96"));
@@ -223,12 +251,12 @@ describe("Crowdfunding", () => {
         parseEther("18.02")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("3.96"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("3.96"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.04")
       );
 
-      await crowdfunding.buy(dao.address, parseEther("4"), false);
+      await crowdfunding.buy(firstDao.address, parseEther("4"), false);
 
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("3.97"));
       expect(await usdc.balanceOf(signer.address)).to.eql(parseEther("92"));
@@ -236,13 +264,13 @@ describe("Crowdfunding", () => {
         parseEther("16.03")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("7.94"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("7.94"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.06")
       );
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         privateExitModule.address,
         PrivateExitModule__factory.createInterface().encodeFunctionData(
           "createPrivateExitOffer",
@@ -252,8 +280,8 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      await crowdfunding.burnLp(dao.address, 0);
-
+      await crowdfunding.burnLp(firstDao.address, 0);
+      
       expect(await lp.balanceOf(crowdfunding.address)).to.eql(
         parseEther("4.03")
       );
@@ -262,7 +290,7 @@ describe("Crowdfunding", () => {
     it("Timestamp Crowdfunding", async () => {
       const timestamp = dayjs().unix();
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "initSale",
@@ -282,7 +310,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -300,13 +328,13 @@ describe("Crowdfunding", () => {
       ]);
 
       await expect(
-        crowdfunding.buy(dao.address, parseEther("2"), true)
+        crowdfunding.buy(firstDao.address, parseEther("2"), true)
       ).to.be.revertedWith("CrowdfundingModule: sale is over");
     });
 
     it("Limited Maximum Amount", async () => {
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "initSale",
@@ -326,7 +354,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -346,10 +374,10 @@ describe("Crowdfunding", () => {
       await usdc.approve(crowdfunding.address, parseEther("10"));
 
       await expect(
-        crowdfunding.buy(dao.address, parseEther("8"), true)
+        crowdfunding.buy(firstDao.address, parseEther("8"), true)
       ).to.be.revertedWith("CrowdfundingModule: amount is off the limits");
 
-      await crowdfunding.buy(dao.address, parseEther("4"), true);
+      await crowdfunding.buy(firstDao.address, parseEther("4"), true);
 
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("1.98"));
       expect(await usdc.balanceOf(signer.address)).to.eql(parseEther("96"));
@@ -357,19 +385,19 @@ describe("Crowdfunding", () => {
         parseEther("18.02")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("3.96"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("3.96"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.04")
       );
 
       await expect(
-        crowdfunding.buy(dao.address, parseEther("2"), true)
+        crowdfunding.buy(firstDao.address, parseEther("2"), true)
       ).to.be.revertedWith("CrowdfundingModule: amount is off the limits");
     });
 
     it("Limited Minimum Amount", async () => {
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "initSale",
@@ -389,7 +417,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -409,10 +437,10 @@ describe("Crowdfunding", () => {
       await usdc.approve(crowdfunding.address, parseEther("10"));
 
       await expect(
-        crowdfunding.buy(dao.address, parseEther("2"), true)
+        crowdfunding.buy(firstDao.address, parseEther("2"), true)
       ).to.be.revertedWith("CrowdfundingModule: amount is off the limits");
 
-      await crowdfunding.buy(dao.address, parseEther("8"), true);
+      await crowdfunding.buy(firstDao.address, parseEther("8"), true);
 
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("3.96"));
       expect(await usdc.balanceOf(signer.address)).to.eql(parseEther("92"));
@@ -420,12 +448,12 @@ describe("Crowdfunding", () => {
         parseEther("16.04")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("7.92"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("7.92"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.08")
       );
 
-      await crowdfunding.buy(dao.address, parseEther("2"), true);
+      await crowdfunding.buy(firstDao.address, parseEther("2"), true);
 
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("4.95"));
       expect(await usdc.balanceOf(signer.address)).to.eql(parseEther("90"));
@@ -433,7 +461,7 @@ describe("Crowdfunding", () => {
         parseEther("15.05")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("9.9"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("9.9"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.1")
       );
@@ -450,7 +478,7 @@ describe("Crowdfunding", () => {
 
       await expect(
         executeTxRaw(
-          dao.address,
+          firstDao.address,
           crowdfunding.address,
           CrowdfundingModule__factory.createInterface().encodeFunctionData(
             "editSale",
@@ -462,7 +490,7 @@ describe("Crowdfunding", () => {
       ).to.be.revertedWith("CrowdfundingModule: Crowdfunding doesn't exists");
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "initSale",
@@ -482,7 +510,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -500,11 +528,11 @@ describe("Crowdfunding", () => {
       ]);
 
       await expect(
-        crowdfunding.buy(dao.address, parseEther("1"), true)
+        crowdfunding.buy(firstDao.address, parseEther("1"), true)
       ).to.be.revertedWith("CrowdfundingModule: the buyer is not whitelisted");
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "editSale",
@@ -525,7 +553,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -544,7 +572,7 @@ describe("Crowdfunding", () => {
 
       await usdc.approve(crowdfunding.address, parseEther("10"));
 
-      await crowdfunding.buy(dao.address, parseEther("4"), true);
+      await crowdfunding.buy(firstDao.address, parseEther("4"), true);
 
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("1.98"));
       expect(await usdc.balanceOf(signer.address)).to.eql(parseEther("96"));
@@ -552,7 +580,7 @@ describe("Crowdfunding", () => {
         parseEther("18.02")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("3.96"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("3.96"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.04")
       );
@@ -572,7 +600,7 @@ describe("Crowdfunding", () => {
         });
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "initSale",
@@ -592,7 +620,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -610,7 +638,7 @@ describe("Crowdfunding", () => {
       ]);
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "editSale",
@@ -620,7 +648,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -644,7 +672,7 @@ describe("Crowdfunding", () => {
       await usdc.approve(crowdfunding.address, parseEther("10"));
 
       await expect(
-        crowdfunding.buy(dao.address, parseEther("1"), true)
+        crowdfunding.buy(firstDao.address, parseEther("1"), true)
       ).to.be.revertedWith("CrowdfundingModule: the buyer is not whitelisted");
     });
 
@@ -658,7 +686,7 @@ describe("Crowdfunding", () => {
         .filter(({ investor }) => investor !== signer.address);
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "initSale",
@@ -678,7 +706,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -697,12 +725,12 @@ describe("Crowdfunding", () => {
 
       await usdc.approve(crowdfunding.address, parseEther("10"));
 
-      await expect(crowdfunding.buy(dao.address, 0, true)).to.be.revertedWith(
-        "CrowdfundingModule: the buyer is not whitelisted"
-      );
+      await expect(
+        crowdfunding.buy(firstDao.address, 0, true)
+      ).to.be.revertedWith("CrowdfundingModule: the buyer is not whitelisted");
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "editSale",
@@ -722,7 +750,7 @@ describe("Crowdfunding", () => {
         0,
         signer
       );
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -741,7 +769,7 @@ describe("Crowdfunding", () => {
           .concat(parseEther("6")),
       ]);
 
-      await crowdfunding.buy(dao.address, 0, true);
+      await crowdfunding.buy(firstDao.address, 0, true);
 
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("2.97"));
       expect(await usdc.balanceOf(signer.address)).to.eql(parseEther("94"));
@@ -749,14 +777,14 @@ describe("Crowdfunding", () => {
         parseEther("17.03")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("5.94"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("5.94"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.06")
       );
 
-      await expect(crowdfunding.buy(dao.address, 0, true)).to.be.revertedWith(
-        "CrowdfundingModule: already bought"
-      );
+      await expect(
+        crowdfunding.buy(firstDao.address, 0, true)
+      ).to.be.revertedWith("CrowdfundingModule: already bought");
     });
 
     it("Crowdfunding with Vesting", async () => {
@@ -764,7 +792,7 @@ describe("Crowdfunding", () => {
 
       await expect(
         executeTxRaw(
-          dao.address,
+          firstDao.address,
           crowdfunding.address,
           CrowdfundingModule__factory.createInterface().encodeFunctionData(
             "initSale",
@@ -786,7 +814,7 @@ describe("Crowdfunding", () => {
       ).to.be.revertedWith("CrowdfundingModule: Invalid vesting");
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         vesting.address,
         DaoVestingModule__factory.createInterface().encodeFunctionData(
           "initVesting",
@@ -801,7 +829,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await vesting.getVesting(dao.address, 0)).to.eql([
+      expect(await vesting.getVesting(firstDao.address, 0)).to.eql([
         lp.address,
         BigNumber.from(timeBase.add(4, "week").unix().toString()),
         BigNumber.from(
@@ -812,7 +840,7 @@ describe("Crowdfunding", () => {
       ]);
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "initSale",
@@ -832,7 +860,7 @@ describe("Crowdfunding", () => {
         signer
       );
 
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         lp.address,
         parseEther("2"),
@@ -851,9 +879,9 @@ describe("Crowdfunding", () => {
 
       await usdc.approve(crowdfunding.address, parseEther("10"));
 
-      await crowdfunding.buy(dao.address, parseEther("4"), true);
+      await crowdfunding.buy(firstDao.address, parseEther("4"), true);
 
-      expect(await vesting.getVesting(dao.address, 0)).to.eql([
+      expect(await vesting.getVesting(firstDao.address, 0)).to.eql([
         lp.address,
         BigNumber.from(timeBase.add(4, "week").unix().toString()),
         BigNumber.from(
@@ -870,7 +898,7 @@ describe("Crowdfunding", () => {
         parseEther("18.02")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("3.96"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("3.96"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.04")
       );
@@ -878,11 +906,10 @@ describe("Crowdfunding", () => {
 
     afterEach(async () => {
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
-          "closeSale",
-          [false]
+          "closeSale"
         ),
         0,
         signer
@@ -893,7 +920,7 @@ describe("Crowdfunding", () => {
   describe("With Custom Token", () => {
     it("Base Crowdfunding", async () => {
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
           "initSale",
@@ -921,11 +948,11 @@ describe("Crowdfunding", () => {
         .approve(crowdfunding.address, parseEther("20"));
       await crowdfunding
         .connect(deployer)
-        .fillTokenBalance(dao.address, 0, parseEther("20"));
+        .fillTokenBalance(firstDao.address, parseEther("20"));
       expect(await wbtc.balanceOf(crowdfunding.address)).to.eql(
         parseEther("20")
       );
-      expect(await crowdfunding.getSaleInfo(dao.address, 0)).to.eql([
+      expect(await crowdfunding.getSaleInfo(firstDao.address, 0)).to.eql([
         usdc.address,
         wbtc.address,
         parseEther("2"),
@@ -944,7 +971,7 @@ describe("Crowdfunding", () => {
 
       await usdc.approve(crowdfunding.address, parseEther("10"));
 
-      await crowdfunding.buy(dao.address, parseEther("4"), true);
+      await crowdfunding.buy(firstDao.address, parseEther("4"), true);
 
       expect(await wbtc.balanceOf(signer.address)).to.eql(parseEther("1.98"));
       expect(await usdc.balanceOf(signer.address)).to.eql(parseEther("96"));
@@ -952,12 +979,12 @@ describe("Crowdfunding", () => {
         parseEther("18.02")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("3.96"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("3.96"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.04")
       );
 
-      await crowdfunding.buy(dao.address, parseEther("4"), true);
+      await crowdfunding.buy(firstDao.address, parseEther("4"), true);
 
       expect(await wbtc.balanceOf(signer.address)).to.eql(parseEther("3.96"));
       expect(await usdc.balanceOf(signer.address)).to.eql(parseEther("92"));
@@ -965,7 +992,7 @@ describe("Crowdfunding", () => {
         parseEther("16.04")
       );
 
-      expect(await usdc.balanceOf(dao.address)).to.eql(parseEther("7.92"));
+      expect(await usdc.balanceOf(firstDao.address)).to.eql(parseEther("7.92"));
       expect(await usdc.balanceOf(feeAddress.address)).to.eql(
         parseEther("0.08")
       );
@@ -973,11 +1000,10 @@ describe("Crowdfunding", () => {
 
     afterEach(async () => {
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         crowdfunding.address,
         CrowdfundingModule__factory.createInterface().encodeFunctionData(
-          "closeSale",
-          [true]
+          "closeSale"
         ),
         0,
         signer
@@ -986,7 +1012,9 @@ describe("Crowdfunding", () => {
       expect(await wbtc.balanceOf(crowdfunding.address)).to.eql(
         parseEther("0")
       );
-      expect(await wbtc.balanceOf(dao.address)).to.eql(parseEther("16.04"));
+      expect(await wbtc.balanceOf(firstDao.address)).to.eql(
+        parseEther("16.04")
+      );
     });
   });
 });

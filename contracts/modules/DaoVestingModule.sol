@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 
 import "../interfaces/IFactory.sol";
 import "../interfaces/IShop.sol";
+import "../interfaces/IDao.sol";
 
 contract DaoVestingModule is
     Initializable,
@@ -24,7 +25,7 @@ contract DaoVestingModule is
 
     struct ClaimerInfo {
         uint256 allocation;
-        uint256 lastClaimedTimestamp;
+        uint256 alreadyClaimedAmount;
     }
 
     struct Claimer {
@@ -44,6 +45,8 @@ contract DaoVestingModule is
     // dao address => number of vestings
     mapping(address => mapping(uint256 => VestingInfo)) private vestings;
     // dao address => id => vesting info
+    mapping(address => mapping(address => uint256)) public remainingTokenAmount;
+    // dao address => token address => total filled token amount
 
     event InitVesting(
         address indexed daoAddress,
@@ -60,6 +63,9 @@ contract DaoVestingModule is
         address claimer,
         uint256 amount
     );
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
 
     function initialize() public initializer {
         __AccessControl_init();
@@ -90,11 +96,10 @@ contract DaoVestingModule is
         );
     }
 
-    modifier onlyPermittedContracts() {
+    modifier onlyCrowdfunding() {
         require(
-            factory.containsDao(msg.sender) ||
-                msg.sender == crowdfundingAddress,
-            "VestingModule: only for DAOs"
+            msg.sender == crowdfundingAddress,
+            "VestingModule: only for Crowdfunding Module"
         );
         _;
     }
@@ -143,8 +148,12 @@ contract DaoVestingModule is
         uint256 _vestingId,
         address _claimer,
         uint256 _allocation
-    ) public onlyPermittedContracts {
+    ) external onlyCrowdfunding {
         _checkIndex(_dao, _vestingId);
+        remainingTokenAmount[_dao][
+            vestings[_dao][_vestingId].currency
+        ] += _allocation;
+
         _addAllocation(_dao, _vestingId, _claimer, _allocation);
     }
 
@@ -176,6 +185,25 @@ contract DaoVestingModule is
 
     function fillLpBalance(address _dao, uint256 _id) external {
         require(shop.buyPrivateOffer(_dao, _id));
+
+        IDao dao = IDao(_dao);
+        address lpAddress = dao.lp();
+        remainingTokenAmount[_dao][lpAddress] += shop
+            .privateOffers(_dao, _id)
+            .lpAmount;
+    }
+
+    function fillTokenBalance(
+        address _dao,
+        address _currency,
+        uint256 _amount
+    ) external {
+        IERC20Upgradeable(_currency).safeTransferFrom(
+            msg.sender,
+            address(this),
+            _amount
+        );
+        remainingTokenAmount[_dao][_currency] += _amount;
     }
 
     function release(address _dao, uint256 _vestingId) external {
@@ -183,8 +211,13 @@ contract DaoVestingModule is
         uint256 releasable_ = releasable(msg.sender, _dao, _vestingId);
 
         require(releasable_ != 0, "VestingModule: Not eligible for release");
+        require(
+            releasable_ <= remainingTokenAmount[_dao][vesting.currency],
+            "VestingModule: Not enough balance"
+        );
 
-        vesting.claimersInfo[msg.sender].lastClaimedTimestamp = block.timestamp;
+        remainingTokenAmount[_dao][vesting.currency] -= releasable_;
+        vesting.claimersInfo[msg.sender].alreadyClaimedAmount += releasable_;
 
         IERC20Upgradeable token = IERC20Upgradeable(vesting.currency);
 
@@ -200,44 +233,42 @@ contract DaoVestingModule is
     ) public view returns (uint256) {
         VestingInfo storage vesting = vestings[_dao][_vestingId];
 
+        uint256 start_ = vesting.start;
+        uint256 duration_ = vesting.duration;
+
         if (_vestingId >= numberOfVestings[_dao]) {
             return 0;
         }
 
         //Before the vesting begins
-        if (block.timestamp <= vesting.start) {
+        if (block.timestamp <= start_) {
             return 0;
         }
 
-        uint256 lastClaimedTimestamp_ = vesting
+        uint256 alreadyClaimedAmount_ = vesting
             .claimersInfo[_claimer]
-            .lastClaimedTimestamp;
+            .alreadyClaimedAmount;
         uint256 totalAllocation_ = vesting.claimersInfo[_claimer].allocation;
 
-        if (lastClaimedTimestamp_ == 0) {
-            lastClaimedTimestamp_ = vesting.start;
-        }
-
         // After the end of vesting
-        if (block.timestamp >= vesting.start + vesting.duration) {
-            return
-                ((vesting.start + vesting.duration - lastClaimedTimestamp_) *
-                    totalAllocation_) / vesting.duration;
+        if (block.timestamp >= start_ + duration_) {
+            return totalAllocation_ - alreadyClaimedAmount_;
         }
 
         // During the vesting period
         return
-            ((block.timestamp - lastClaimedTimestamp_) * totalAllocation_) /
-            vesting.duration;
+            ((block.timestamp - start_) * totalAllocation_) /
+            duration_ -
+            alreadyClaimedAmount_;
     }
 
-    function lastClaimedTimestamp(
+    function alreadyClaimedAmount(
         address _claimer,
         address _dao,
         uint256 _vestingId
     ) external view returns (uint256) {
         VestingInfo storage vesting = vestings[_dao][_vestingId];
-        return vesting.claimersInfo[_claimer].lastClaimedTimestamp;
+        return vesting.claimersInfo[_claimer].alreadyClaimedAmount;
     }
 
     struct Vesting {

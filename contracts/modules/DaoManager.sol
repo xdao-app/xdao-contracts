@@ -31,6 +31,9 @@ contract DaoManager is
         uint256 txLength
     );
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
+
     function initialize(IFactory _factory) public initializer {
         __AccessControl_init();
         __UUPSUpgradeable_init();

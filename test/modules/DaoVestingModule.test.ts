@@ -31,7 +31,8 @@ describe("DaoVestingModule", () => {
 
   let factory: Factory;
 
-  let dao: Dao;
+  let firstDao: Dao;
+  let secondDao: Dao;
 
   let crowdfunding: CrowdfundingModule;
 
@@ -65,8 +66,10 @@ describe("DaoVestingModule", () => {
     await shop.setFactory(factory.address);
 
     await factory.create("", "", 51, [signer.address], [parseEther("1")]);
+    await factory.create("", "", 51, [signer.address], [parseEther("10")]);
 
-    dao = Dao__factory.connect(await factory.daoAt(0), signer);
+    firstDao = Dao__factory.connect(await factory.daoAt(0), signer);
+    secondDao = Dao__factory.connect(await factory.daoAt(1), signer);
 
     crowdfunding = (await upgrades.deployProxy(
       await ethers.getContractFactory("CrowdfundingModule")
@@ -94,7 +97,7 @@ describe("DaoVestingModule", () => {
   describe("With LP", () => {
     beforeEach(async () => {
       await executeTx(
-        dao.address,
+        firstDao.address,
         shop.address,
         "createLp",
         ["string", "string"],
@@ -103,10 +106,10 @@ describe("DaoVestingModule", () => {
         signer
       );
 
-      lp = LP__factory.connect(await dao.lp(), signer);
+      lp = LP__factory.connect(await firstDao.lp(), signer);
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         shop.address,
         Shop__factory.createInterface().encodeFunctionData(
           "createPrivateOffer",
@@ -117,7 +120,8 @@ describe("DaoVestingModule", () => {
       );
 
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("0"));
-      await vesting.fillLpBalance(dao.address, 0);
+
+      await vesting.fillLpBalance(firstDao.address, 0);
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("20"));
     });
 
@@ -128,7 +132,7 @@ describe("DaoVestingModule", () => {
       const duration = timeBase.add(4, "day").unix() - start;
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         vesting.address,
         DaoVestingModule__factory.createInterface().encodeFunctionData(
           "initVesting",
@@ -146,7 +150,7 @@ describe("DaoVestingModule", () => {
         signer
       );
 
-      expect(await vesting.getVesting(dao.address, 0)).to.eql([
+      expect(await vesting.getVesting(firstDao.address, 0)).to.eql([
         lp.address,
         BigNumber.from(start.toString()),
         BigNumber.from(duration.toString()),
@@ -154,9 +158,22 @@ describe("DaoVestingModule", () => {
         claimers.map(() => parseEther("3")),
       ]);
 
-      await expect(vesting.release(dao.address, 0)).to.be.revertedWith(
+      await expect(vesting.release(firstDao.address, 0)).to.be.revertedWith(
         "VestingModule: Not eligible for release"
       );
+
+      await expect(
+        executeTxRaw(
+          secondDao.address,
+          vesting.address,
+          DaoVestingModule__factory.createInterface().encodeFunctionData(
+            "addAllocation",
+            [firstDao.address, 0, signer.address, parseEther("3")]
+          ),
+          0,
+          signer
+        )
+      ).to.be.revertedWith("VestingModule: only for Crowdfunding Module");
 
       await network.provider.send("evm_setNextBlockTimestamp", [
         start + duration / 3,
@@ -164,19 +181,19 @@ describe("DaoVestingModule", () => {
       await network.provider.send("evm_mine");
 
       expect(
-        await vesting.releasable(claimers[0].address, dao.address, 0)
+        await vesting.releasable(claimers[0].address, firstDao.address, 0)
       ).to.eql(parseEther("1"));
 
-      expect(await vesting.releasable(signer.address, dao.address, 0)).to.eql(
-        parseEther("0")
-      );
+      expect(
+        await vesting.releasable(signer.address, firstDao.address, 0)
+      ).to.eql(parseEther("0"));
 
-      await expect(vesting.release(dao.address, 0)).to.be.revertedWith(
+      await expect(vesting.release(firstDao.address, 0)).to.be.revertedWith(
         "VestingModule: Not eligible for release"
       );
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         vesting.address,
         DaoVestingModule__factory.createInterface().encodeFunctionData(
           "addAllocations",
@@ -194,7 +211,7 @@ describe("DaoVestingModule", () => {
         signer
       );
 
-      expect(await vesting.getVesting(dao.address, 0)).to.eql([
+      expect(await vesting.getVesting(firstDao.address, 0)).to.eql([
         lp.address,
         BigNumber.from(start.toString()),
         BigNumber.from(duration.toString()),
@@ -207,25 +224,34 @@ describe("DaoVestingModule", () => {
       ]);
 
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("0"));
-      await vesting.release(dao.address, 0);
+      await vesting.release(firstDao.address, 0);
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("2.5"));
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("17.5"));
       expect(
-        await vesting.lastClaimedTimestamp(signer.address, dao.address, 0)
-      ).to.eql(BigNumber.from((start + duration / 2).toString()));
+        await vesting.remainingTokenAmount(firstDao.address, lp.address)
+      ).to.eql(parseEther("17.5"));
+      expect(
+        await vesting.alreadyClaimedAmount(signer.address, firstDao.address, 0)
+      ).to.eql(parseEther("2.5"));
 
       await network.provider.send("evm_setNextBlockTimestamp", [
         start + 2 * duration,
       ]);
       await network.provider.send("evm_mine");
 
-      await expect(vesting.release(dao.address, 1)).to.be.revertedWith(
+      await expect(vesting.release(firstDao.address, 1)).to.be.revertedWith(
         "VestingModule: Not eligible for release"
       );
 
-      await vesting.release(dao.address, 0);
+      await vesting.release(firstDao.address, 0);
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("5"));
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("15"));
+      expect(
+        await vesting.remainingTokenAmount(firstDao.address, lp.address)
+      ).to.eql(parseEther("15"));
+      expect(
+        await vesting.remainingTokenAmount(secondDao.address, lp.address)
+      ).to.eql(parseEther("0"));
     });
 
     it("Few Vestings", async () => {
@@ -235,7 +261,7 @@ describe("DaoVestingModule", () => {
       const duration = timeBase.add(4, "day").unix() - start;
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         vesting.address,
         DaoVestingModule__factory.createInterface().encodeFunctionData(
           "initVesting",
@@ -256,7 +282,28 @@ describe("DaoVestingModule", () => {
       );
 
       await executeTxRaw(
-        dao.address,
+        secondDao.address,
+        vesting.address,
+        DaoVestingModule__factory.createInterface().encodeFunctionData(
+          "initVesting",
+          [
+            lp.address,
+            start,
+            duration,
+            [
+              {
+                claimer: signer.address,
+                allocation: parseEther("5"),
+              },
+            ],
+          ]
+        ),
+        0,
+        signer
+      );
+
+      await executeTxRaw(
+        firstDao.address,
         vesting.address,
         DaoVestingModule__factory.createInterface().encodeFunctionData(
           "initVesting",
@@ -276,7 +323,7 @@ describe("DaoVestingModule", () => {
         signer
       );
 
-      expect(await vesting.getVesting(dao.address, 0)).to.eql([
+      expect(await vesting.getVesting(firstDao.address, 0)).to.eql([
         lp.address,
         BigNumber.from(start.toString()),
         BigNumber.from(duration.toString()),
@@ -284,7 +331,7 @@ describe("DaoVestingModule", () => {
         [parseEther("10")],
       ]);
 
-      expect(await vesting.getVesting(dao.address, 1)).to.eql([
+      expect(await vesting.getVesting(firstDao.address, 1)).to.eql([
         lp.address,
         BigNumber.from((start + duration / 2).toString()),
         BigNumber.from((2 * duration).toString()),
@@ -293,7 +340,7 @@ describe("DaoVestingModule", () => {
       ]);
 
       await executeTxRaw(
-        dao.address,
+        firstDao.address,
         vesting.address,
         DaoVestingModule__factory.createInterface().encodeFunctionData(
           "addAllocations",
@@ -311,7 +358,7 @@ describe("DaoVestingModule", () => {
         signer
       );
 
-      expect(await vesting.getVesting(dao.address, 0)).to.eql([
+      expect(await vesting.getVesting(firstDao.address, 0)).to.eql([
         lp.address,
         BigNumber.from(start.toString()),
         BigNumber.from(duration.toString()),
@@ -324,11 +371,37 @@ describe("DaoVestingModule", () => {
       ]);
 
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("0"));
-      await vesting.release(dao.address, 1);
+      await vesting.release(firstDao.address, 1);
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("1.25"));
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("18.75"));
 
-      await vesting.release(dao.address, 0);
+      await expect(vesting.release(secondDao.address, 0)).to.be.revertedWith(
+        "VestingModule: Not enough balance"
+      );
+
+      await vesting.release(firstDao.address, 0);
+      expect(await lp.balanceOf(signer.address)).to.eql(parseEther("16.25"));
+      expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("3.75"));
+
+      await lp.approve(vesting.address, parseEther("100"));
+
+      await vesting.fillTokenBalance(
+        secondDao.address,
+        lp.address,
+        parseEther("3")
+      );
+      expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("6.75"));
+      await expect(vesting.release(secondDao.address, 0)).to.be.revertedWith(
+        "VestingModule: Not enough balance"
+      );
+
+      await vesting.fillTokenBalance(
+        secondDao.address,
+        lp.address,
+        parseEther("2")
+      );
+      expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("8.75"));
+      await vesting.release(secondDao.address, 0);
       expect(await lp.balanceOf(signer.address)).to.eql(parseEther("16.25"));
       expect(await lp.balanceOf(vesting.address)).to.eql(parseEther("3.75"));
     });
