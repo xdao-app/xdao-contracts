@@ -226,6 +226,13 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    opbnb: {
+      url: 'https://opbnb-mainnet-rpc.bnbchain.org',
+      chainId: 204,
+      accounts,
+      gasPrice: 1e9
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
