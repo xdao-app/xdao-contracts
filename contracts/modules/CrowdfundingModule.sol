@@ -70,9 +70,6 @@ contract CrowdfundingModule is
     mapping(address => mapping(uint256 => uint256)) public totalBoughtAmount;
     // dao address => sale index => total bought amount
 
-    mapping(address => mapping(uint256 => uint256)) public totalSoldTokenAmount;
-    // dao address => sale index => total sold token amount
-
     mapping(address => mapping(uint256 => uint256)) public filledTokenAmount;
     // dao address => sale index => total filled token amount
 
@@ -308,14 +305,12 @@ contract CrowdfundingModule is
         address tokenAddress = crowdfundings[msg.sender][currentIndex]
             .tokenAddress;
         uint256 tokenAmount = filledTokenAmount[msg.sender][currentIndex];
-        uint256 totalSoldToken = totalSoldTokenAmount[msg.sender][currentIndex];
 
-        IERC20Upgradeable(tokenAddress).safeTransfer(
-            msg.sender,
-            tokenAmount - totalSoldToken
-        );
+        IERC20Upgradeable(tokenAddress).safeTransfer(msg.sender, tokenAmount);
 
         ++saleIndexes[msg.sender];
+        filledTokenAmount[msg.sender][currentIndex] = 0;
+
         emit CloseSale(msg.sender, currentIndex);
     }
 
@@ -416,13 +411,12 @@ contract CrowdfundingModule is
             10 ** IERC20MetadataUpgradeable(sale.tokenAddress).decimals()) /
             sale.rate;
 
-        totalSoldTokenAmount[_dao][saleIndex] += tokenAmount;
-
         require(
-            totalSoldTokenAmount[_dao][saleIndex] <=
-                filledTokenAmount[_dao][saleIndex],
+            filledTokenAmount[_dao][saleIndex] >= tokenAmount,
             "CrowdfundingModule: not enough balance"
         );
+
+        filledTokenAmount[_dao][saleIndex] -= tokenAmount;
 
         if (sale.isVesting) {
             IERC20Upgradeable(sale.tokenAddress).safeTransfer(
