@@ -22,7 +22,7 @@ contract AdvancedViewer {
     ) external view returns (address[] memory) {
         address _factory = factory;
 
-        address[] memory _userDaos = new address[](30);
+        address[] memory _userDaos = new address[](50);
 
         uint256 j = 0;
 
@@ -43,11 +43,10 @@ contract AdvancedViewer {
         return _userDaos;
     }
 
-    function getDaos(uint256 start, uint256 end)
-        external
-        view
-        returns (address[] memory)
-    {
+    function getDaos(
+        uint256 start,
+        uint256 end
+    ) external view returns (address[] memory) {
         address _factory = factory;
 
         address[] memory _daos = new address[](end - start);
@@ -66,11 +65,9 @@ contract AdvancedViewer {
         return _daos;
     }
 
-    function getDaosInfo(address[] memory daoAddresses)
-        external
-        view
-        returns (DaoInfo[] memory)
-    {
+    function getDaosInfo(
+        address[] memory daoAddresses
+    ) external view returns (DaoInfo[] memory) {
         DaoInfo[] memory daosInfo = new DaoInfo[](daoAddresses.length);
 
         for (uint256 i = 0; i < daoAddresses.length; i++) {
@@ -80,11 +77,9 @@ contract AdvancedViewer {
         return daosInfo;
     }
 
-    function getDaosExecutedVoting(address[] memory daoAddresses)
-        external
-        view
-        returns (uint256[] memory)
-    {
+    function getDaosExecutedVoting(
+        address[] memory daoAddresses
+    ) external view returns (uint256[] memory) {
         uint256[] memory daosExecutedVoting = new uint256[](
             daoAddresses.length
         );
