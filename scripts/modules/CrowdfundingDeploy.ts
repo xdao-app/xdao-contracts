@@ -39,6 +39,8 @@ async function main() {
 
   await VestingModule.deployed();
 
+  console.log("DaoVestingModule:", VestingModule.address);
+
   await (
     await CrowdfundingModule.setFee(
       "0x333330cd9c430fae7536ed9684f511f229527e09",
@@ -64,7 +66,6 @@ async function main() {
     )
   ).wait();
 
-  console.log("DaoVestingModule:", VestingModule.address);
 
   const implementationAddressList = await Promise.all([
     upgrades.erc1967.getImplementationAddress(DaoManager.address),
