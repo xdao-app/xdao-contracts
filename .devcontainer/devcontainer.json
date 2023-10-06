@@ -2,7 +2,8 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "NomicFoundation.hardhat-solidity"
+        "NomicFoundation.hardhat-solidity",
+        "dbaeumer.vscode-eslint"
       ]
     }
   },
