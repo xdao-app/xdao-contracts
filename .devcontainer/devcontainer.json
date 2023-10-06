@@ -1,0 +1,14 @@
+{
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "NomicFoundation.hardhat-solidity"
+      ]
+    }
+  },
+  "dockerComposeFile": "docker-compose.yml",
+  "name": "xdao-contracts",
+  "postCreateCommand": "yarn",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+}
