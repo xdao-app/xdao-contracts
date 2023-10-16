@@ -233,6 +233,12 @@ const config: HardhatUserConfig = {
       gasPrice: 1e9
     },
 
+    arbitrumNova: {
+      url: 'https://nova.arbitrum.io/rpc',
+      chainId: 42170,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
