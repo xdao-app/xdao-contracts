@@ -278,7 +278,7 @@ contract CrowdfundingModule is
     }
 
     function fillLpBalance(address _dao, uint256 _id) external {
-        uint256 currentIndex = saleIndexes[msg.sender];
+        uint256 currentIndex = saleIndexes[_dao];
         require(shop.buyPrivateOffer(_dao, _id));
 
         filledTokenAmount[_dao][currentIndex] += shop
@@ -288,7 +288,7 @@ contract CrowdfundingModule is
 
     function fillTokenBalance(address _dao, uint256 _amount) external {
         require(factory.containsDao(_dao), "CrowdfundingModule: only for DAOs");
-        uint256 currentIndex = saleIndexes[msg.sender];
+        uint256 currentIndex = saleIndexes[_dao];
 
         Sale storage sale = crowdfundings[_dao][currentIndex];
         IERC20Upgradeable(sale.tokenAddress).safeTransferFrom(
