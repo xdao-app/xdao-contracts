@@ -316,7 +316,7 @@ contract CrowdfundingModule is
 
     function burnLp(address _dao, uint256 _id) external {
         require(factory.containsDao(_dao), "CrowdfundingModule: only for DAOs");
-        uint256 currentIndex = saleIndexes[msg.sender];
+        uint256 currentIndex = saleIndexes[_dao];
         uint256 lpAmount = privateExitModule
             .privateExitOffers(_dao, _id)
             .lpAmount;

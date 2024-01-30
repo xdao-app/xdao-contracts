@@ -10,7 +10,9 @@ interface UpgardeAgruments {
 }
 
 const NETWORK_ARGUMENTS: Record<number, UpgardeAgruments> = {
-  
+  1: {
+    proxyAddress: "0x711E14eBC41A8f1595433FA4409a50BC9838Fc03"
+  },
   56: {
     proxyAddress: '0x97330364E1a9209214ef5107a04798170D351b68'
   },
@@ -39,7 +41,7 @@ const NETWORK_ARGUMENTS: Record<number, UpgardeAgruments> = {
     proxyAddress: "0x096BE3B573c74034Ba5A7E08DE412691DB9449fd"
   },
   84531: {
-    proxyAddress: "0x711E14eBC41A8f1595433FA4409a50BC9838Fc03"
+    proxyAddress: "0x03e40dB4dcE9Fec44232B942440a1BC65563f001"
   }
 }
 
