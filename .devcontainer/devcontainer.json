@@ -1,4 +1,11 @@
 {
+  "name": "xdao-contracts",
+  "image": "node:16",
+  "runArgs": [
+    "--name",
+    "xdao-contracts"
+  ],
+  "postCreateCommand": "yarn",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -6,10 +13,5 @@
         "dbaeumer.vscode-eslint"
       ]
     }
-  },
-  "dockerComposeFile": "docker-compose.yml",
-  "name": "xdao-contracts",
-  "postCreateCommand": "yarn",
-  "service": "app",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}"
+  }
 }
