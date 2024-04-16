@@ -1,0 +1,159 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x9abD9936e304442770E0135BC81C81004afb4728",
+      "txHash": "0xd7247b0fceac6b2f2c7ea7221245baa52f4bedc19184413416e31911bc2b527e",
+      "kind": "uups"
+    },
+    {
+      "address": "0x2B99eF191de6919f632f35041E44e61C276F39d0",
+      "txHash": "0x4dc6f437db1e4125819a7459df3b9ff716aa9c9391998c5f0755a818fe00dc1a",
+      "kind": "uups"
+    },
+    {
+      "address": "0xEC176cd0a6D6dD372aef3700B12A86B49e267BF1",
+      "txHash": "0xd752ab1f3a4e82eb3456a0cc9419fcf2a50fe9e84982b36137adfe21c0fdb268",
+      "kind": "uups"
+    },
+    {
+      "address": "0xDD583f4eccafEC120d0ba2A06D6A2C2Aa39FBa09",
+      "txHash": "0x2b858cab0caaaaeff4582a5fedac392005f2a8c5d99e6f161f28f900016d9b58",
+      "kind": "uups"
+    },
+    {
+      "address": "0x22B88B506FfCe94452695A729Ed0eD6AD88DA9Af",
+      "txHash": "0xe443a0094ceaa164197e8a5cddfd2194b8e292e108069eef4d8b72c0b9465348",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "912f70178d920f925e5840e332e295e1c2e7a13da6e9178b89f38029f47b24a7": {
+      "address": "0x48B54231b0fD99484014A78C1170FF7486D86415",
+      "txHash": "0xa5e2c59a2a3bd0ee6ee41b8f4c89714fc9572abf2b4eb7ceffca08f3a08825b9",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "totalAllocation",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VestingModule",
+            "src": "contracts/modules/VestingModule.sol:13"
+          },
+          {
+            "label": "lastClaimedTimestamp",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "VestingModule",
+            "src": "contracts/modules/VestingModule.sol:14"
+          },
+          {
+            "label": "start",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_uint256",
+            "contract": "VestingModule",
+            "src": "contracts/modules/VestingModule.sol:16"
+          },
+          {
+            "label": "duration",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_uint256",
+            "contract": "VestingModule",
+            "src": "contracts/modules/VestingModule.sol:17"
+          },
+          {
+            "label": "token",
+            "offset": 0,
+            "slot": "205",
+            "type": "t_contract(IERC20Upgradeable)1494",
+            "contract": "VestingModule",
+            "src": "contracts/modules/VestingModule.sol:19"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_contract(IERC20Upgradeable)1494": {
+            "label": "contract IERC20Upgradeable"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)"
+          },
+          "t_uint256": {
+            "label": "uint256"
+          }
+        }
+      }
+    }
+  }
+}
