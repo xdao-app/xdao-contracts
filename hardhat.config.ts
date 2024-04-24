@@ -239,6 +239,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    core: {
+      url: 'https://rpc.coredao.org',
+      chainId: 1116,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
