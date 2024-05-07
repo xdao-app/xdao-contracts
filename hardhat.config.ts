@@ -245,6 +245,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    manta: {
+      url: 'https://manta-pacific.drpc.org',
+      chainId: 169,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
