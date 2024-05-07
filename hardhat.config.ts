@@ -257,6 +257,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    mode: {
+      url: 'https://mainnet.mode.network',
+      chainId: 34443,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
