@@ -263,6 +263,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    xlayer: {
+      url: 'https://rpc.xlayer.tech',
+      chainId: 196,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
