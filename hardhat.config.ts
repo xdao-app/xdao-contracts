@@ -251,6 +251,12 @@ const config: HardhatUserConfig = {
       accounts
     },
 
+    blast: {
+      url: 'https://rpc.blast.io',
+      chainId: 81457,
+      accounts
+    },
+
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
